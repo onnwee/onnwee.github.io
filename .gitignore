@@ -1,0 +1,52 @@
+# Top-level ignores
+.DS_Store
+.env
+node_modules/
+dist/
+*.log
+*.tsbuildinfo
+*.local
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+Thumbs.db
+ehthumbs.db
+
+# Yarn/PNPM/Other lockfiles (keep only one if you're using just npm)
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore root-level build (if any)
+build/
+out/
+
+# Ignore client-specific artifacts
+/client/node_modules/
+/client/dist/
+/client/.turbo/
+/client/.next/
+/client/.cache/
+/client/.eslintcache
+/client/*.log
+/client/*.tsbuildinfo
+/client/public/build/
+/client/public/vite.svg
+
+# Optional: Ignore coverage if you're testing
+/client/coverage/
+coverage/
+
+# Optional: ignore local dev overrides
+/client/.env.local
+/client/.env.*.local
+
+# Ignore vite cache
+/client/.vite/
+
+# Temporary files
+*.tmp
+*.bak
