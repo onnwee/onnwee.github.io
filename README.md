@@ -1,4 +1,4 @@
-# ⓪ηηωεε忧世
+# ⓪ηηωεε 忧世
 
 > Dev • Twitch lurker • Musician • Marxist
 
@@ -37,3 +37,4 @@ npm run dev       # Local dev
 npm run build     # Production build
 npm run preview   # Preview build
 npm run deploy    # GitHub Pages deployment
+```
