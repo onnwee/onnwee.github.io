@@ -1,155 +1,74 @@
 <!DOCTYPE html>
-<html
-    lang="en"
-    class="bg-black text-white"
->
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-        />
+<html lang="en" class="bg-black text-white">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-        <!-- Title & SEO -->
-        <title>⓪ηηωεε忧世 | onnwee</title>
-        <meta
-            name="description"
-            content="Portfolio of an anonymous dev, streamer, beatmaker & Marxist."
-        />
-        <meta
-            name="author"
-            content="onnwee"
-        />
-        <meta
-            name="theme-color"
-            content="#000000"
-        />
+    <!-- Title & SEO -->
+    <title>⓪ηηωεε忧世 | onnwee</title>
+    <meta
+      name="description"
+      content="Portfolio of an anonymous dev, streamer & Marxist."
+    />
+    <meta name="author" content="onnwee" />
+    <meta name="theme-color" content="#000000" />
 
-        <!-- Identity -->
-        <link
-            rel="icon"
-            type="image/svg+xml"
-            href="/favicon.svg"
-        />
-        <link
-            rel="apple-touch-icon"
-            href="/apple-touch-icon.png"
-        />
+    <!-- Identity -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-        <!-- Google Fonts Performance -->
-        <link
-            rel="preconnect"
-            href="https://fonts.googleapis.com"
-        />
-        <link
-            rel="preconnect"
-            href="https://fonts.gstatic.com"
-            crossorigin
-        />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Orbitron:wght@600&family=Gloria+Hallelujah&display=swap"
-            rel="stylesheet"
-        />
+    <!-- Google Fonts Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fira+Code&family=Orbitron:wght@600&family=Gloria+Hallelujah&display=swap"
+      rel="stylesheet"
+    />
 
-        <!-- Preload critical fonts (optional, only if you host locally or know weights) -->
-        <!--
+    <!-- Preload critical fonts (optional, only if you host locally or know weights) -->
+    <!--
     <link rel="preload" href="/fonts/FiraCode-Regular.woff2" as="font" type="font/woff2" crossorigin />
     -->
 
-        <!-- Prefetch frequently used assets -->
-        <link
-            rel="prefetch"
-            href="/onnwee_logo_cyberpunk.svg"
-            as="image"
-            type="image/svg+xml"
-        />
-        <link
-            rel="prefetch"
-            href="/preview.png"
-            as="image"
-        />
-        <link
-            rel="prefetch"
-            href="https://onnwee.github.io/blog"
-            as="document"
-        />
+    <!-- Prefetch frequently used assets -->
+    <link rel="prefetch" href="/onnwee_logo_cyberpunk.svg" as="image" type="image/svg+xml" />
+    <link rel="prefetch" href="/preview.png" as="image" />
+    <link rel="prefetch" href="https://onnwee.github.io/blog" as="document" />
 
-        <!-- DNS Prefetch for 3rd-party content -->
-        <link
-            rel="dns-prefetch"
-            href="https://www.youtube.com"
-        />
-        <link
-            rel="dns-prefetch"
-            href="https://open.spotify.com"
-        />
-        <link
-            rel="dns-prefetch"
-            href="https://player.twitch.tv"
-        />
-        <link
-            rel="dns-prefetch"
-            href="https://fonts.googleapis.com"
-        />
-        <link
-            rel="dns-prefetch"
-            href="https://fonts.gstatic.com"
-        />
+    <!-- DNS Prefetch for 3rd-party content -->
+    <link rel="dns-prefetch" href="https://www.youtube.com" />
+    <link rel="dns-prefetch" href="https://open.spotify.com" />
+    <link rel="dns-prefetch" href="https://player.twitch.tv" />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
-        <!-- Open Graph / Twitter -->
-        <meta
-            property="og:title"
-            content="onnwee"
-        />
-        <meta
-            property="og:description"
-            content="Anonymous dev, streamer, and Marxist. Cyberpunk vibes and glitch aesthetics."
-        />
-        <meta
-            property="og:type"
-            content="website"
-        />
-        <meta
-            property="og:image"
-            content="https://onnwee.github.io/preview.png"
-        />
-        <meta
-            property="og:url"
-            content="https://onnwee.github.io/"
-        />
+    <!-- Open Graph / Twitter -->
+    <meta property="og:title" content="onnwee" />
+    <meta
+      property="og:description"
+      content="Anonymous dev, streamer, and Marxist."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://onnwee.github.io/preview.png" />
+    <meta property="og:url" content="https://onnwee.github.io/" />
 
-        <meta
-            name="twitter:card"
-            content="summary_large_image"
-        />
-        <meta
-            name="twitter:title"
-            content="onnwee"
-        />
-        <meta
-            name="twitter:description"
-            content="Beatmaker, hacker, streamer, Marxist. Welcome to the neon void."
-        />
-        <meta
-            name="twitter:image"
-            content="https://onnwee.github.io/preview.png"
-        />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="onnwee" />
+    <meta
+      name="twitter:description"
+      content="Hacker, Dev, streamer, Marxist. Welcome to the neon void."
+    />
+    <meta name="twitter:image" content="https://onnwee.github.io/preview.png" />
 
-        <!-- Umami (later) -->
-        <!-- <script defer src="https://your-umami-host/script.js" data-website-id="YOUR-ID"></script> -->
+    <!-- Umami (later) -->
+    <!-- <script defer src="https://your-umami-host/script.js" data-website-id="YOUR-ID"></script> -->
 
-        <!-- Tailwind Output -->
-        <link
-            rel="stylesheet"
-            href="/src/index.css"
-        />
-    </head>
+    <!-- Tailwind Output -->
+    <!-- <link rel="stylesheet" href="/src/index.css" /> -->
+  </head>
 
-    <body class="antialiased overflow-x-hidden">
-        <div id="root"></div>
-        <script
-            type="module"
-            src="/src/main.tsx"
-        ></script>
-    </body>
+  <body class="antialiased overflow-x-hidden">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>

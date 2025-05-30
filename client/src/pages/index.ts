@@ -1,5 +1,7 @@
 export { default as About } from './About'
 export { default as Blog } from './Blog'
+export { default as BlogIndex } from '../components/BlogIndex'
+export { default as BlogPost } from './BlogPost'
 export { default as Home } from './Home'
 export { default as ProjectDetail } from './ProjectDetail'
 export { default as Projects } from './Projects'
