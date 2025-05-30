@@ -1,0 +1,22 @@
+version: '2'
+
+sql:
+    - engine: 'postgresql'
+      schema:
+          - 'internal/schema.sql'
+      queries:
+          - 'internal/queries/'
+      gen:
+          go:
+              out: 'internal/db'
+              package: 'db'
+              sql_package: 'pgx/v5' # 👈 required to enable :named syntax
+              emit_json_tags: true
+              emit_interface: true
+              overrides:
+                  - db_type: 'pg_catalog.text'
+                    go_type: 'github.com/jackc/pgx/v5/pgtype.Text'
+                  - db_type: 'pg_catalog.timestamptz'
+                    go_type: 'time.Time'
+                  - db_type: 'jsonb'
+                    go_type: 'github.com/sqlc-dev/pqtype.NullRawMessage'
