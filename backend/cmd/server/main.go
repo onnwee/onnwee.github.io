@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/onnwee/onnwee.github.io/backend/internal/api"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
@@ -25,6 +26,9 @@ func main() {
 
 	// Build router from api package
 	router := api.NewRouter(queries)
+
+	// Register /metrics for Prometheus
+	http.Handle("/metrics", promhttp.Handler())
 
 	// Start server
 	port := os.Getenv("PORT")

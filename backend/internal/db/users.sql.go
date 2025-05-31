@@ -7,12 +7,13 @@ package db
 
 import (
 	"context"
+	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :one
-INSERT INTO users (username, email)
-VALUES ($1, $2)
-RETURNING id, username, email, created_at
+INSERT INTO users (username, email, updated_at)
+VALUES ($1, $2, now())
+RETURNING id, username, email, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -28,6 +29,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.Username,
 		&i.Email,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -42,8 +44,26 @@ func (q *Queries) DeleteUser(ctx context.Context, id int32) error {
 	return err
 }
 
+const getUserByEmail = `-- name: GetUserByEmail :one
+SELECT id, username, email, created_at, updated_at FROM users
+WHERE email = $1
+`
+
+func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, username, email, created_at FROM users
+SELECT id, username, email, created_at, updated_at FROM users
 WHERE id = $1
 `
 
@@ -55,12 +75,31 @@ func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
 		&i.Username,
 		&i.Email,
 		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUserByUsername = `-- name: GetUserByUsername :one
+SELECT id, username, email, created_at, updated_at FROM users
+WHERE username = $1
+`
+
+func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByUsername, username)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, username, email, created_at FROM users
+SELECT id, username, email, created_at, updated_at FROM users
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -84,6 +123,7 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 			&i.Username,
 			&i.Email,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -96,4 +136,33 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 		return nil, err
 	}
 	return items, nil
+}
+
+const patchUser = `-- name: PatchUser :one
+UPDATE users
+SET
+  username = COALESCE($1, username),
+  email = COALESCE($2, email),
+  updated_at = now()
+WHERE id = $3
+RETURNING id, username, email, created_at, updated_at
+`
+
+type PatchUserParams struct {
+	Username sql.NullString `json:"username"`
+	Email    sql.NullString `json:"email"`
+	ID       int32          `json:"id"`
+}
+
+func (q *Queries) PatchUser(ctx context.Context, arg PatchUserParams) (User, error) {
+	row := q.db.QueryRowContext(ctx, patchUser, arg.Username, arg.Email, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

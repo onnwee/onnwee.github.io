@@ -24,8 +24,8 @@ func (q *Queries) CountViewsByPath(ctx context.Context, path string) (int64, err
 }
 
 const createPageView = `-- name: CreatePageView :exec
-INSERT INTO page_views (path, referrer, user_agent, session_id, ip_address, viewed_at)
-VALUES ($1, $2, $3, $4, $5, $6)
+INSERT INTO page_views (path, referrer, user_agent, session_id, ip_address, viewed_at, user_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type CreatePageViewParams struct {
@@ -35,6 +35,7 @@ type CreatePageViewParams struct {
 	SessionID sql.NullString `json:"session_id"`
 	IpAddress sql.NullString `json:"ip_address"`
 	ViewedAt  time.Time      `json:"viewed_at"`
+	UserID    sql.NullInt32  `json:"user_id"`
 }
 
 func (q *Queries) CreatePageView(ctx context.Context, arg CreatePageViewParams) error {
@@ -45,12 +46,13 @@ func (q *Queries) CreatePageView(ctx context.Context, arg CreatePageViewParams) 
 		arg.SessionID,
 		arg.IpAddress,
 		arg.ViewedAt,
+		arg.UserID,
 	)
 	return err
 }
 
 const getViewsByPath = `-- name: GetViewsByPath :many
-SELECT id, path, referrer, user_agent, session_id, ip_address, viewed_at FROM page_views
+SELECT id, path, referrer, user_agent, session_id, ip_address, viewed_at, user_id FROM page_views
 WHERE path = $1
 ORDER BY viewed_at DESC
 LIMIT $2 OFFSET $3
@@ -79,6 +81,7 @@ func (q *Queries) GetViewsByPath(ctx context.Context, arg GetViewsByPathParams) 
 			&i.SessionID,
 			&i.IpAddress,
 			&i.ViewedAt,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}

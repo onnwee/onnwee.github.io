@@ -1,15 +1,33 @@
+#!/bin/bash
+set -e
+
+echo "🔄 Resetting database..."
+
+docker exec -i backend-db-1 psql -U postgres -d onnwee_db <<EOSQL
+-- Drop all tables explicitly
+DROP TABLE IF EXISTS 
+  sessions,
+  page_views,
+  events,
+  logs,
+  projects,
+  posts,
+  users 
+  CASCADE;
+
+-- Recreate tables
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,
   email TEXT NOT NULL UNIQUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+  updated_at TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE TABLE IF NOT EXISTS posts (
-  id SERIAL PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   summary TEXT,
@@ -22,7 +40,7 @@ CREATE TABLE IF NOT EXISTS posts (
 );
 
 CREATE TABLE IF NOT EXISTS projects (
-  id SERIAL PRIMARY KEY NOT NULL,
+  id SERIAL PRIMARY KEY,
   title TEXT NOT NULL,
   slug TEXT UNIQUE NOT NULL,
   description TEXT,
@@ -41,7 +59,6 @@ CREATE TABLE IF NOT EXISTS logs (
   ip_address TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-
 CREATE INDEX idx_logs_created_at ON logs (created_at DESC);
 CREATE INDEX idx_logs_level ON logs (level);
 
@@ -67,7 +84,6 @@ CREATE TABLE IF NOT EXISTS page_views (
   viewed_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
 );
-
 CREATE INDEX idx_page_views_path ON page_views (path);
 CREATE INDEX idx_page_views_viewed_at ON page_views (viewed_at DESC);
 
@@ -79,3 +95,6 @@ CREATE TABLE IF NOT EXISTS sessions (
   created_at TIMESTAMPTZ DEFAULT now(),
   expires_at TIMESTAMPTZ
 );
+EOSQL
+
+echo "✅ Database reset complete."

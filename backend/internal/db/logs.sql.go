@@ -8,9 +8,8 @@ package db
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
-
-	"github.com/sqlc-dev/pqtype"
 )
 
 const createLog = `-- name: CreateLog :one
@@ -20,11 +19,11 @@ RETURNING id, level, message, context, ip_address, created_at
 `
 
 type CreateLogParams struct {
-	Level     string                `json:"level"`
-	Message   string                `json:"message"`
-	Context   pqtype.NullRawMessage `json:"context"`
-	IpAddress sql.NullString        `json:"ip_address"`
-	CreatedAt time.Time             `json:"created_at"`
+	Level     string          `json:"level"`
+	Message   string          `json:"message"`
+	Context   json.RawMessage `json:"context"`
+	IpAddress sql.NullString  `json:"ip_address"`
+	CreatedAt time.Time       `json:"created_at"`
 }
 
 func (q *Queries) CreateLog(ctx context.Context, arg CreateLogParams) (Log, error) {

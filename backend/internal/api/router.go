@@ -5,6 +5,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/onnwee/onnwee.github.io/backend/internal/api/handlers"
+	"github.com/onnwee/onnwee.github.io/backend/pkg/middleware"
+
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
 )
@@ -17,6 +21,10 @@ func NewRouter(queries *db.Queries) http.Handler {
 	handlers.RegisterEventRoutes(r, s)
 	handlers.RegisterPageViewRoutes(r, s)
 	handlers.RegisterHealthRoutes(r, s)
+	handlers.RegisterPostRoutes(r, s)
+	handlers.RegisterProjectRoutes(r, s)
+	handlers.RegisterUserRoutes(r, s)
 
-	return r
+	base := middleware.Chain(r, middleware.Logging, middleware.Recovery, middleware.CORS, middleware.RealIP, middleware.RateLimit)
+	return otelhttp.NewHandler(base, "HTTPRouter")
 }

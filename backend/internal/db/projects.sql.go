@@ -11,9 +11,9 @@ import (
 )
 
 const createProject = `-- name: CreateProject :one
-INSERT INTO projects (title, slug, description, repo_url, live_url)
-VALUES ($1, $2, $3, $4, $5)
-RETURNING id, title, slug, description, repo_url, live_url, created_at, updated_at
+INSERT INTO projects (title, slug, description, repo_url, live_url, user_id)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, title, slug, description, repo_url, live_url, created_at, updated_at, user_id
 `
 
 type CreateProjectParams struct {
@@ -22,6 +22,7 @@ type CreateProjectParams struct {
 	Description sql.NullString `json:"description"`
 	RepoUrl     sql.NullString `json:"repo_url"`
 	LiveUrl     sql.NullString `json:"live_url"`
+	UserID      sql.NullInt32  `json:"user_id"`
 }
 
 func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error) {
@@ -31,6 +32,7 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		arg.Description,
 		arg.RepoUrl,
 		arg.LiveUrl,
+		arg.UserID,
 	)
 	var i Project
 	err := row.Scan(
@@ -42,12 +44,14 @@ func (q *Queries) CreateProject(ctx context.Context, arg CreateProjectParams) (P
 		&i.LiveUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }
 
 const deleteProject = `-- name: DeleteProject :exec
-DELETE FROM projects WHERE id = $1
+DELETE FROM projects
+WHERE id = $1
 `
 
 func (q *Queries) DeleteProject(ctx context.Context, id int32) error {
@@ -56,7 +60,8 @@ func (q *Queries) DeleteProject(ctx context.Context, id int32) error {
 }
 
 const getProjectBySlug = `-- name: GetProjectBySlug :one
-SELECT id, title, slug, description, repo_url, live_url, created_at, updated_at FROM projects WHERE slug = $1
+SELECT id, title, slug, description, repo_url, live_url, created_at, updated_at, user_id FROM projects
+WHERE slug = $1
 `
 
 func (q *Queries) GetProjectBySlug(ctx context.Context, slug string) (Project, error) {
@@ -71,12 +76,13 @@ func (q *Queries) GetProjectBySlug(ctx context.Context, slug string) (Project, e
 		&i.LiveUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }
 
 const listProjects = `-- name: ListProjects :many
-SELECT id, title, slug, description, repo_url, live_url, created_at, updated_at FROM projects
+SELECT id, title, slug, description, repo_url, live_url, created_at, updated_at, user_id FROM projects
 ORDER BY created_at DESC
 `
 
@@ -98,6 +104,7 @@ func (q *Queries) ListProjects(ctx context.Context) ([]Project, error) {
 			&i.LiveUrl,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}
@@ -114,9 +121,13 @@ func (q *Queries) ListProjects(ctx context.Context) ([]Project, error) {
 
 const updateProject = `-- name: UpdateProject :one
 UPDATE projects
-SET title = $2, description = $3, repo_url = $4, live_url = $5, updated_at = NOW()
+SET title = $2,
+    description = $3,
+    repo_url = $4,
+    live_url = $5,
+    updated_at = NOW()
 WHERE id = $1
-RETURNING id, title, slug, description, repo_url, live_url, created_at, updated_at
+RETURNING id, title, slug, description, repo_url, live_url, created_at, updated_at, user_id
 `
 
 type UpdateProjectParams struct {
@@ -145,6 +156,7 @@ func (q *Queries) UpdateProject(ctx context.Context, arg UpdateProjectParams) (P
 		&i.LiveUrl,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }

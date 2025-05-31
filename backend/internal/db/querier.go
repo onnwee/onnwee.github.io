@@ -6,6 +6,9 @@ package db
 
 import (
 	"context"
+	"database/sql"
+
+	"github.com/google/uuid"
 )
 
 type Querier interface {
@@ -16,22 +19,32 @@ type Querier interface {
 	CreatePageView(ctx context.Context, arg CreatePageViewParams) error
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
+	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
 	DeleteLog(ctx context.Context, id int32) error
 	DeletePost(ctx context.Context, id int32) error
 	DeleteProject(ctx context.Context, id int32) error
+	DeleteSession(ctx context.Context, id uuid.UUID) error
 	DeleteUser(ctx context.Context, id int32) error
+	ExpireSession(ctx context.Context, id uuid.UUID) error
 	GetEventsByName(ctx context.Context, arg GetEventsByNameParams) ([]Event, error)
 	GetLogByID(ctx context.Context, id int32) (Log, error)
 	GetPostBySlug(ctx context.Context, slug string) (Post, error)
 	GetProjectBySlug(ctx context.Context, slug string) (Project, error)
+	GetSessionByID(ctx context.Context, id uuid.UUID) (Session, error)
+	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
+	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetViewsByPath(ctx context.Context, arg GetViewsByPathParams) ([]PageView, error)
+	// @param event_name:nullable
+	// @param session_id:nullable
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]Event, error)
 	ListLogs(ctx context.Context, arg ListLogsParams) ([]Log, error)
 	ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, error)
 	ListProjects(ctx context.Context) ([]Project, error)
+	ListSessionsByUser(ctx context.Context, userID sql.NullInt32) ([]Session, error)
 	ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error)
+	PatchUser(ctx context.Context, arg PatchUserParams) (User, error)
 	UpdatePost(ctx context.Context, arg UpdatePostParams) (Post, error)
 	UpdateProject(ctx context.Context, arg UpdateProjectParams) (Project, error)
 }

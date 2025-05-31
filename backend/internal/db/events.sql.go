@@ -8,9 +8,8 @@ package db
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"time"
-
-	"github.com/sqlc-dev/pqtype"
 )
 
 const countEvents = `-- name: CountEvents :one
@@ -25,16 +24,16 @@ func (q *Queries) CountEvents(ctx context.Context) (int64, error) {
 }
 
 const createEvent = `-- name: CreateEvent :exec
-INSERT INTO events (event_name, data, session_id, ip_address, occurred_at)
+INSERT INTO events (event_name, data, session_id, ip_address, viewed_at)
 VALUES ($1, $2, $3, $4, $5)
 `
 
 type CreateEventParams struct {
-	EventName  sql.NullString        `json:"event_name"`
-	Data       pqtype.NullRawMessage `json:"data"`
-	SessionID  sql.NullString        `json:"session_id"`
-	IpAddress  sql.NullString        `json:"ip_address"`
-	OccurredAt time.Time             `json:"occurred_at"`
+	EventName sql.NullString  `json:"event_name"`
+	Data      json.RawMessage `json:"data"`
+	SessionID sql.NullString  `json:"session_id"`
+	IpAddress sql.NullString  `json:"ip_address"`
+	ViewedAt  time.Time       `json:"viewed_at"`
 }
 
 func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {
@@ -43,15 +42,15 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 		arg.Data,
 		arg.SessionID,
 		arg.IpAddress,
-		arg.OccurredAt,
+		arg.ViewedAt,
 	)
 	return err
 }
 
 const getEventsByName = `-- name: GetEventsByName :many
-SELECT id, event_name, data, session_id, ip_address, occurred_at FROM events
+SELECT id, event_name, data, referrer, user_agent, session_id, ip_address, viewed_at, user_id FROM events
 WHERE event_name = $1
-ORDER BY occurred_at DESC
+ORDER BY viewed_at DESC
 LIMIT $2 OFFSET $3
 `
 
@@ -74,9 +73,12 @@ func (q *Queries) GetEventsByName(ctx context.Context, arg GetEventsByNameParams
 			&i.ID,
 			&i.EventName,
 			&i.Data,
+			&i.Referrer,
+			&i.UserAgent,
 			&i.SessionID,
 			&i.IpAddress,
-			&i.OccurredAt,
+			&i.ViewedAt,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}
@@ -92,25 +94,27 @@ func (q *Queries) GetEventsByName(ctx context.Context, arg GetEventsByNameParams
 }
 
 const listEvents = `-- name: ListEvents :many
-SELECT id, event_name, data, session_id, ip_address, occurred_at FROM events
+SELECT id, event_name, data, referrer, user_agent, session_id, ip_address, viewed_at, user_id FROM events
 WHERE 
-  ($1::text IS NULL OR event_name = $1) AND
-  ($2::text IS NULL OR session_id = $2)
-ORDER BY occurred_at DESC
+  (event_name = $1 OR $1 IS NULL)
+  AND (session_id = $2 OR $2 IS NULL)
+ORDER BY viewed_at DESC
 LIMIT $3 OFFSET $4
 `
 
 type ListEventsParams struct {
-	Column1 string `json:"column_1"`
-	Column2 string `json:"column_2"`
-	Limit   int32  `json:"limit"`
-	Offset  int32  `json:"offset"`
+	EventName sql.NullString `json:"event_name"`
+	SessionID sql.NullString `json:"session_id"`
+	Limit     int32          `json:"limit"`
+	Offset    int32          `json:"offset"`
 }
 
+// @param event_name:nullable
+// @param session_id:nullable
 func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]Event, error) {
 	rows, err := q.db.QueryContext(ctx, listEvents,
-		arg.Column1,
-		arg.Column2,
+		arg.EventName,
+		arg.SessionID,
 		arg.Limit,
 		arg.Offset,
 	)
@@ -125,9 +129,12 @@ func (q *Queries) ListEvents(ctx context.Context, arg ListEventsParams) ([]Event
 			&i.ID,
 			&i.EventName,
 			&i.Data,
+			&i.Referrer,
+			&i.UserAgent,
 			&i.SessionID,
 			&i.IpAddress,
-			&i.OccurredAt,
+			&i.ViewedAt,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}

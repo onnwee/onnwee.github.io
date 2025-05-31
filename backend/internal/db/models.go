@@ -6,27 +6,31 @@ package db
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
-	"github.com/sqlc-dev/pqtype"
+	"github.com/google/uuid"
 )
 
 type Event struct {
-	ID         int32                 `json:"id"`
-	EventName  sql.NullString        `json:"event_name"`
-	Data       pqtype.NullRawMessage `json:"data"`
-	SessionID  sql.NullString        `json:"session_id"`
-	IpAddress  sql.NullString        `json:"ip_address"`
-	OccurredAt time.Time             `json:"occurred_at"`
+	ID        int32           `json:"id"`
+	EventName sql.NullString  `json:"event_name"`
+	Data      json.RawMessage `json:"data"`
+	Referrer  sql.NullString  `json:"referrer"`
+	UserAgent sql.NullString  `json:"user_agent"`
+	SessionID sql.NullString  `json:"session_id"`
+	IpAddress sql.NullString  `json:"ip_address"`
+	ViewedAt  time.Time       `json:"viewed_at"`
+	UserID    sql.NullInt32   `json:"user_id"`
 }
 
 type Log struct {
-	ID        int32                 `json:"id"`
-	Level     string                `json:"level"`
-	Message   string                `json:"message"`
-	Context   pqtype.NullRawMessage `json:"context"`
-	IpAddress sql.NullString        `json:"ip_address"`
-	CreatedAt time.Time             `json:"created_at"`
+	ID        int32           `json:"id"`
+	Level     string          `json:"level"`
+	Message   string          `json:"message"`
+	Context   json.RawMessage `json:"context"`
+	IpAddress sql.NullString  `json:"ip_address"`
+	CreatedAt time.Time       `json:"created_at"`
 }
 
 type PageView struct {
@@ -37,18 +41,20 @@ type PageView struct {
 	SessionID sql.NullString `json:"session_id"`
 	IpAddress sql.NullString `json:"ip_address"`
 	ViewedAt  time.Time      `json:"viewed_at"`
+	UserID    sql.NullInt32  `json:"user_id"`
 }
 
 type Post struct {
-	ID          int32          `json:"id"`
-	Title       string         `json:"title"`
-	Slug        string         `json:"slug"`
-	Summary     sql.NullString `json:"summary"`
-	Content     string         `json:"content"`
-	PublishedAt time.Time      `json:"published_at"`
-	UpdatedAt   sql.NullTime   `json:"updated_at"`
-	Tags        []string       `json:"tags"`
-	IsDraft     sql.NullBool   `json:"is_draft"`
+	ID        int32          `json:"id"`
+	Title     string         `json:"title"`
+	Slug      string         `json:"slug"`
+	Summary   sql.NullString `json:"summary"`
+	Content   string         `json:"content"`
+	Tags      []string       `json:"tags"`
+	IsDraft   sql.NullBool   `json:"is_draft"`
+	CreatedAt sql.NullTime   `json:"created_at"`
+	UpdatedAt sql.NullTime   `json:"updated_at"`
+	UserID    sql.NullInt32  `json:"user_id"`
 }
 
 type Project struct {
@@ -60,6 +66,16 @@ type Project struct {
 	LiveUrl     sql.NullString `json:"live_url"`
 	CreatedAt   sql.NullTime   `json:"created_at"`
 	UpdatedAt   sql.NullTime   `json:"updated_at"`
+	UserID      sql.NullInt32  `json:"user_id"`
+}
+
+type Session struct {
+	ID        uuid.UUID      `json:"id"`
+	UserID    sql.NullInt32  `json:"user_id"`
+	IpAddress sql.NullString `json:"ip_address"`
+	UserAgent sql.NullString `json:"user_agent"`
+	CreatedAt sql.NullTime   `json:"created_at"`
+	ExpiresAt sql.NullTime   `json:"expires_at"`
 }
 
 type User struct {
@@ -67,4 +83,5 @@ type User struct {
 	Username  string       `json:"username"`
 	Email     string       `json:"email"`
 	CreatedAt sql.NullTime `json:"created_at"`
+	UpdatedAt sql.NullTime `json:"updated_at"`
 }

@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
-	"database/sql"
-	
+
 	"github.com/gorilla/mux"
-	"github.com/onnwee/onnwee.github.io/backend/internal/server"
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
+	"github.com/onnwee/onnwee.github.io/backend/internal/server"
 	"github.com/onnwee/onnwee.github.io/backend/internal/utils"
 )
 
@@ -21,7 +20,7 @@ func RegisterPageViewRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		ip := utils.GetIP(r)
-		input.IpAddress = sql.NullString{String: ip, Valid: ip != ""}	
+		input.IpAddress = utils.ToNullString(&ip)
 		input.ViewedAt = time.Now()
 
 		if err := s.DB.CreatePageView(r.Context(), input); err != nil {

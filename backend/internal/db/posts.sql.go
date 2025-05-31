@@ -13,9 +13,9 @@ import (
 )
 
 const createPost = `-- name: CreatePost :one
-INSERT INTO posts (title, slug, summary, content, tags, is_draft)
-VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, title, slug, summary, content, published_at, updated_at, tags, is_draft
+INSERT INTO posts (title, slug, summary, content, tags, is_draft, user_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING id, title, slug, summary, content, tags, is_draft, created_at, updated_at, user_id
 `
 
 type CreatePostParams struct {
@@ -25,6 +25,7 @@ type CreatePostParams struct {
 	Content string         `json:"content"`
 	Tags    []string       `json:"tags"`
 	IsDraft sql.NullBool   `json:"is_draft"`
+	UserID  sql.NullInt32  `json:"user_id"`
 }
 
 func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, error) {
@@ -35,6 +36,7 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		arg.Content,
 		pq.Array(arg.Tags),
 		arg.IsDraft,
+		arg.UserID,
 	)
 	var i Post
 	err := row.Scan(
@@ -43,10 +45,11 @@ func (q *Queries) CreatePost(ctx context.Context, arg CreatePostParams) (Post, e
 		&i.Slug,
 		&i.Summary,
 		&i.Content,
-		&i.PublishedAt,
-		&i.UpdatedAt,
 		pq.Array(&i.Tags),
 		&i.IsDraft,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }
@@ -61,7 +64,7 @@ func (q *Queries) DeletePost(ctx context.Context, id int32) error {
 }
 
 const getPostBySlug = `-- name: GetPostBySlug :one
-SELECT id, title, slug, summary, content, published_at, updated_at, tags, is_draft FROM posts WHERE slug = $1
+SELECT id, title, slug, summary, content, tags, is_draft, created_at, updated_at, user_id FROM posts WHERE slug = $1
 `
 
 func (q *Queries) GetPostBySlug(ctx context.Context, slug string) (Post, error) {
@@ -73,18 +76,19 @@ func (q *Queries) GetPostBySlug(ctx context.Context, slug string) (Post, error) 
 		&i.Slug,
 		&i.Summary,
 		&i.Content,
-		&i.PublishedAt,
-		&i.UpdatedAt,
 		pq.Array(&i.Tags),
 		&i.IsDraft,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }
 
 const listPosts = `-- name: ListPosts :many
-SELECT id, title, slug, summary, content, published_at, updated_at, tags, is_draft FROM posts
+SELECT id, title, slug, summary, content, tags, is_draft, created_at, updated_at, user_id FROM posts
 WHERE is_draft = FALSE
-ORDER BY published_at DESC
+ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
 
@@ -108,10 +112,11 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, e
 			&i.Slug,
 			&i.Summary,
 			&i.Content,
-			&i.PublishedAt,
-			&i.UpdatedAt,
 			pq.Array(&i.Tags),
 			&i.IsDraft,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.UserID,
 		); err != nil {
 			return nil, err
 		}
@@ -128,9 +133,14 @@ func (q *Queries) ListPosts(ctx context.Context, arg ListPostsParams) ([]Post, e
 
 const updatePost = `-- name: UpdatePost :one
 UPDATE posts
-SET title = $2, summary = $3, content = $4, tags = $5, is_draft = $6, updated_at = NOW()
+SET title = $2,
+    summary = $3,
+    content = $4,
+    tags = $5,
+    is_draft = $6,
+    updated_at = NOW()
 WHERE id = $1
-RETURNING id, title, slug, summary, content, published_at, updated_at, tags, is_draft
+RETURNING id, title, slug, summary, content, tags, is_draft, created_at, updated_at, user_id
 `
 
 type UpdatePostParams struct {
@@ -158,10 +168,11 @@ func (q *Queries) UpdatePost(ctx context.Context, arg UpdatePostParams) (Post, e
 		&i.Slug,
 		&i.Summary,
 		&i.Content,
-		&i.PublishedAt,
-		&i.UpdatedAt,
 		pq.Array(&i.Tags),
 		&i.IsDraft,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.UserID,
 	)
 	return i, err
 }

@@ -10,6 +10,33 @@ services:
             - '5432:5432'
         volumes:
             - db_data:/var/lib/postgresql/data
+            - ./scripts:/scripts
+            
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: prometheus
+        ports:
+        - "9090:9090"
+        volumes:
+        - ./prometheus.yml:/etc/prometheus/prometheus.yml
+        - prometheus_data:/prometheus
+        restart: unless-stopped
 
+    grafana:
+        image: grafana/grafana-oss:latest
+        container_name: grafana
+        ports:
+        - "3000:3000"
+        volumes:
+        - grafana_data:/var/lib/grafana
+        environment:
+        - GF_SECURITY_ADMIN_USER=admin
+        - GF_SECURITY_ADMIN_PASSWORD=admin
+        depends_on:
+        - prometheus
+        restart: unless-stopped
 volumes:
     db_data:
+    prometheus_data:
+    grafana_data:
+
