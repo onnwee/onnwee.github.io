@@ -24,20 +24,23 @@ func main() {
 		log.Fatalf("Failed to connect to DB: %v", err)
 	}
 
-	// Build router from api package
-	router := api.NewRouter(queries)
+	// Build your application router
+	appRouter := api.NewRouter(queries)
 
-	// Register /metrics for Prometheus
-	http.Handle("/metrics", promhttp.Handler())
+	// Create a new ServeMux that includes /metrics and your app's router
+	mux := http.NewServeMux()
+	mux.Handle("/metrics", promhttp.Handler()) // Expose Prometheus metrics
+	mux.Handle("/", appRouter)                 // Your main app routes
 
-	// Start server
+	// Start the server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
 	log.Printf("Listening on :%s", port)
-	if err := http.ListenAndServe(":"+port, router); err != nil {
+	if err := http.ListenAndServe(":"+port, mux); err != nil {
 		log.Fatalf("Server error: %v", err)
 	}
 }
+
