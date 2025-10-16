@@ -16,7 +16,7 @@ jobs:
               if: github.event_name == 'issues' && github.event.action == 'opened'
               uses: actions-ecosystem/action-add-labels@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
                   labels: |
                       status: backlog
 
@@ -24,7 +24,7 @@ jobs:
               if: github.event_name == 'issues' && github.event.action == 'edited' && contains(toJson(github.event.issue.assignee), 'login')
               uses: actions-ecosystem/action-add-labels@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
                   labels: |
                       status: in progress
 

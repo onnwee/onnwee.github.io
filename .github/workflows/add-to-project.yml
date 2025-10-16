@@ -30,11 +30,11 @@ jobs:
               uses: actions/add-to-project@v1.0.2
               with:
                   project-url: ${{ vars.GH_PROJECT_URL }}
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  github-token: ${{ secrets.PROJECT_TOKEN }}
 
             - name: Add PR to project
               if: github.event_name == 'pull_request'
               uses: actions/add-to-project@v1.0.2
               with:
                   project-url: ${{ vars.GH_PROJECT_URL }}
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
+                  github-token: ${{ secrets.PROJECT_TOKEN }}

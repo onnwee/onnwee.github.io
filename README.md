@@ -68,21 +68,21 @@ make reset-db               # drop/recreate tables using scripts/reset_db.sh
 
 ```
 client/
-	src/
-		components/        // shared UI (ErrorBoundary, LazyGrid, embeds, nav)
-		context/           // ThemeProvider + glitch toggles
-		data/              // static project metadata
-		hooks/             // responsive + intersection observer helpers
-		pages/             // route-level components
-		blog/              // MDX posts with frontmatter
+ src/
+  components/        // shared UI (ErrorBoundary, LazyGrid, embeds, nav)
+  context/           // ThemeProvider + glitch toggles
+  data/              // static project metadata
+  hooks/             // responsive + intersection observer helpers
+  pages/             // route-level components
+  blog/              // MDX posts with frontmatter
 backend/
-	cmd/server/          // API entrypoint exposing /metrics + mux router
-	cmd/seed/            // gofakeit-powered data seeding
-	internal/api/        // handler registrations per resource
-	internal/db/         // sqlc generated queries/models
-	internal/queries/    // SQL source of truth
-	pkg/middleware/      // logging, recovery, cors, rate limiting, real IP
-	scripts/reset_db.sh  // docker exec helper for wiping local DB
+ cmd/server/          // API entrypoint exposing /metrics + mux router
+ cmd/seed/            // gofakeit-powered data seeding
+ internal/api/        // handler registrations per resource
+ internal/db/         // sqlc generated queries/models
+ internal/queries/    // SQL source of truth
+ pkg/middleware/      // logging, recovery, cors, rate limiting, real IP
+ scripts/reset_db.sh  // docker exec helper for wiping local DB
 ```
 
 ---
