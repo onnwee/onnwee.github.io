@@ -374,6 +374,17 @@ pre {
   animation: none !important;
 }
 
+/* One-time fade-up utility used by LazyGrid */
+.fade-up-once {
+  opacity: 0;
+  animation: fadeSlideUp 500ms var(--transition-base) forwards;
+}
+
+.motion-reduced .fade-up-once {
+  animation: none !important;
+  opacity: 1 !important;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
