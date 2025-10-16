@@ -135,18 +135,32 @@ package main
 
 import (
     "database/sql"
-    "fmt"
+    "log"
     _ "github.com/lib/pq"
     "golang.org/x/crypto/bcrypt"
 )
 
 func main() {
-    db, _ := sql.Open("postgres", "your-db-url")
-    password := "your-password"
-    hash, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+    // Simplified example - add proper error handling in production
+    db, err := sql.Open("postgres", "your-db-url")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
     
-    db.Exec("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)",
+    password := "your-password"
+    hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    _, err = db.Exec("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)",
         "admin", "admin@example.com", string(hash))
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    log.Println("User created successfully")
 }
 ```
 
