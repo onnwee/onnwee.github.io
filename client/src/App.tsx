@@ -1,9 +1,9 @@
-import { ErrorBoundary, ErrorOverlay, Nav } from '@/components'
+import { AuthGate, ErrorBoundary, ErrorOverlay, Nav } from '@/components'
 import { About, Home, ProjectDetail, Projects, Support } from '@/pages'
 import AdminLayout from '@/pages/admin/AdminLayout'
 import AdminProjects from '@/pages/admin/AdminProjects'
 import AdminPosts from '@/pages/admin/AdminPosts'
-import AdminGate from '@/components/AdminGate'
+import AdminLogin from '@/pages/admin/AdminLogin'
 import { errorMonitor } from '@/utils'
 
 import { Route, Routes } from 'react-router-dom'
@@ -52,12 +52,13 @@ const App = () => {
           <Route path="/projects/:slug" element={<ProjectDetail />} />
           {/* Blog temporarily disabled */}
           {/* Admin routes (not linked from nav) */}
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin"
             element={
-              <AdminGate>
+              <AuthGate>
                 <AdminLayout />
-              </AdminGate>
+              </AuthGate>
             }
           >
             <Route index element={<AdminProjects />} />
