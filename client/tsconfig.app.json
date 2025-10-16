@@ -27,10 +27,7 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true,
-
-    // Silence baseUrl deprecation (TS 6.x). See https://aka.ms/ts6
-    "ignoreDeprecations": "6.0"
+    "noUncheckedSideEffectImports": true
   },
   "include": ["src"],
   "exclude": ["src/blog/**/*"]
