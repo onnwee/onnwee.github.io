@@ -1,0 +1,40 @@
+name: Add to GitHub Project
+
+on:
+    issues:
+        types: [opened]
+    pull_request:
+        types: [opened, ready_for_review]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    issues: write
+    pull-requests: write
+    repository-projects: write
+
+jobs:
+    add:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Validate project URL variable
+              run: |
+                  if [ -z "${{ vars.GH_PROJECT_URL }}" ]; then
+                    echo "GH_PROJECT_URL repository variable is not set."
+                    echo "Please set 'GH_PROJECT_URL' in the repository Settings > Variables with your project URL, e.g. https://github.com/users/<user>/projects/<number> or https://github.com/orgs/<org>/projects/<number>"
+                    exit 1
+                  fi
+
+            - name: Add issue to project
+              if: github.event_name == 'issues'
+              uses: actions/add-to-project@v1.0.2
+              with:
+                  project-url: ${{ vars.GH_PROJECT_URL }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}
+
+            - name: Add PR to project
+              if: github.event_name == 'pull_request'
+              uses: actions/add-to-project@v1.0.2
+              with:
+                  project-url: ${{ vars.GH_PROJECT_URL }}
+                  github-token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,92 @@
+# Define and sync repository labels. Managed by .github/workflows/labels.yml
+# Docs: https://github.com/crazy-max/ghaction-github-labeler
+
+- name: enhancement
+  color: 84b6eb
+  description: New feature or request
+
+- name: bug
+  color: d73a4a
+  description: Something isn't working
+
+- name: documentation
+  color: 0075ca
+  description: Improvements or additions to documentation
+
+- name: help wanted
+  color: 008672
+  description: Extra attention is needed
+
+- name: good first issue
+  color: 7057ff
+  description: Good for newcomers
+
+- name: security
+  color: ff3b30
+  description: Security-related work
+
+- name: testing
+  color: 0e8a16
+  description: Tests or test infrastructure
+
+- name: infra
+  color: 0366d6
+  description: CI/CD, tooling, deployment
+
+- name: frontend
+  color: f9d0c4
+  description: Client-side UI/UX work
+
+- name: backend
+  color: c2e0c6
+  description: Server, database, or API work
+
+- name: observability
+  color: c5def5
+  description: Metrics, tracing, logs
+
+# Area labels
+- name: "area: frontend"
+  color: f9d0c4
+  description: Frontend area label
+
+- name: "area: backend"
+  color: c2e0c6
+  description: Backend area label
+
+- name: "area: infra"
+  color: 0366d6
+  description: Infra/CI area label
+
+- name: "area: testing"
+  color: 0e8a16
+  description: Testing area label
+
+- name: "area: docs"
+  color: 0075ca
+  description: Documentation area label
+
+- name: "area: security"
+  color: ff3b30
+  description: Security area label
+
+- name: "area: observability"
+  color: c5def5
+  description: Observability area label
+
+# Status labels used by automation
+- name: "status: backlog"
+  color: 9e9e9e
+  description: Item is in backlog
+
+- name: "status: in progress"
+  color: fbca04
+  description: Work has started
+
+- name: "status: review"
+  color: 5319e7
+  description: In code review or verification
+
+- name: "status: done"
+  color: 0e8a16
+  description: Completed work
