@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSessionToken(storedToken)
         setUser(parsedUser)
       } catch {
-        // Clear invalid data
+        // Clear invalid data - error intentionally ignored
         localStorage.removeItem(SESSION_TOKEN_KEY)
         localStorage.removeItem(USER_KEY)
       }
