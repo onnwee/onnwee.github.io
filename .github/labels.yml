@@ -90,3 +90,8 @@
 - name: "status: done"
   color: 0e8a16
   description: Completed work
+
+# Milestone label for grouping
+- name: "milestone: Q4 2025"
+  color: bfe5bf
+  description: Q4 2025 roadmap grouping label
