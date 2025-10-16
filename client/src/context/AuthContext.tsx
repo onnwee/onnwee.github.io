@@ -18,6 +18,7 @@ type AuthContextType = {
   sessionToken: string | null
   isAuthenticated: boolean
   isLoading: boolean
+  // eslint-disable-next-line no-unused-vars
   login: (username: string, password: string) => Promise<void>
   logout: () => void
 }
@@ -42,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const parsedUser = JSON.parse(storedUser)
         setSessionToken(storedToken)
         setUser(parsedUser)
-      } catch (error) {
+      } catch {
         // Clear invalid data
         localStorage.removeItem(SESSION_TOKEN_KEY)
         localStorage.removeItem(USER_KEY)
