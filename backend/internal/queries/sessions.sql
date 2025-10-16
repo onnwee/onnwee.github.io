@@ -7,6 +7,10 @@ RETURNING *;
 SELECT * FROM sessions
 WHERE id = $1;
 
+-- name: GetValidSession :one
+SELECT * FROM sessions
+WHERE id = $1 AND (expires_at IS NULL OR expires_at > now());
+
 -- name: DeleteSession :exec
 DELETE FROM sessions
 WHERE id = $1;

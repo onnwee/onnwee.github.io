@@ -84,6 +84,25 @@ func (q *Queries) GetSessionByID(ctx context.Context, id uuid.UUID) (Session, er
 	return i, err
 }
 
+const getValidSession = `-- name: GetValidSession :one
+SELECT id, user_id, ip_address, user_agent, created_at, expires_at FROM sessions
+WHERE id = $1 AND (expires_at IS NULL OR expires_at > now())
+`
+
+func (q *Queries) GetValidSession(ctx context.Context, id uuid.UUID) (Session, error) {
+	row := q.db.QueryRowContext(ctx, getValidSession, id)
+	var i Session
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.IpAddress,
+		&i.UserAgent,
+		&i.CreatedAt,
+		&i.ExpiresAt,
+	)
+	return i, err
+}
+
 const listSessionsByUser = `-- name: ListSessionsByUser :many
 SELECT id, user_id, ip_address, user_agent, created_at, expires_at FROM sessions
 WHERE user_id = $1

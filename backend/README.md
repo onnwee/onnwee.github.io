@@ -54,6 +54,16 @@ This is the backend API for the `onnwee` platform. It's written in Go and uses P
 
 ## 📘 API Endpoints
 
+### Authentication
+
+* `POST /auth/login` — Login with username/email and password
+  * Request body: `{"username": "user", "password": "pass"}`
+  * Returns: `{"success": true, "user_id": 1, "username": "user"}`
+  * Sets httpOnly session cookie (24-hour expiration)
+* `POST /auth/logout` — Logout and invalidate session
+  * Returns: `{"success": true, "message": "Logged out successfully"}`
+  * Clears session cookie
+
 ### Users
 
 * `POST /users` — Create a new user
@@ -71,11 +81,14 @@ This is the backend API for the `onnwee` platform. It's written in Go and uses P
 
 ### Projects
 
+**Public routes (no authentication required):**
 * `GET /projects` — List all projects
 * `GET /projects/{slug}` — Get project by slug
-* `POST /projects` — Create project
-* `PUT /projects/{id}` — Update project
-* `DELETE /projects/{id}` — Delete project
+
+**Admin routes (authentication required):**
+* `POST /admin/projects` — Create project
+* `PUT /admin/projects/{id}` — Update project
+* `DELETE /admin/projects/{id}` — Delete project
 
 ### Logs
 
@@ -102,6 +115,61 @@ This is the backend API for the `onnwee` platform. It's written in Go and uses P
 * `POST /sessions` — Create session
 * `DELETE /sessions/{id}` — Delete session
 * `PUT /sessions/{id}/expire` — Expire session
+
+---
+
+## 🔐 Authentication
+
+The API uses session-based authentication for admin routes:
+
+1. **Login**: POST credentials to `/auth/login` to receive a session cookie
+2. **Admin Access**: Use the session cookie to access `/admin/*` endpoints
+3. **Logout**: POST to `/auth/logout` to invalidate the session
+
+### Creating a User with Password
+
+Users need a password hash to login. You can create one using Go:
+
+```go
+package main
+
+import (
+    "database/sql"
+    "log"
+    _ "github.com/lib/pq"
+    "golang.org/x/crypto/bcrypt"
+)
+
+func main() {
+    // Simplified example - add proper error handling in production
+    db, err := sql.Open("postgres", "your-db-url")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer db.Close()
+    
+    password := "your-password"
+    hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    _, err = db.Exec("INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)",
+        "admin", "admin@example.com", string(hash))
+    if err != nil {
+        log.Fatal(err)
+    }
+    
+    log.Println("User created successfully")
+}
+```
+
+### Session Details
+
+* Sessions are stored in the `sessions` table
+* Session cookies are httpOnly with SameSite=Lax
+* Default expiration: 24 hours
+* Rate limiting applies to login attempts (60 requests/minute)
 
 ---
 

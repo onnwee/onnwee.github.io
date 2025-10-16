@@ -21,6 +21,7 @@ type Querier interface {
 	CreateProject(ctx context.Context, arg CreateProjectParams) (Project, error)
 	CreateSession(ctx context.Context, arg CreateSessionParams) (Session, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
+	CreateUserWithPassword(ctx context.Context, arg CreateUserWithPasswordParams) (User, error)
 	DeleteLog(ctx context.Context, id int32) error
 	DeletePost(ctx context.Context, id int32) error
 	DeleteProject(ctx context.Context, id int32) error
@@ -35,6 +36,8 @@ type Querier interface {
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
+	GetUserForAuth(ctx context.Context, username string) (User, error)
+	GetValidSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetViewsByPath(ctx context.Context, arg GetViewsByPathParams) ([]PageView, error)
 	// @param event_name:nullable
 	// @param session_id:nullable
