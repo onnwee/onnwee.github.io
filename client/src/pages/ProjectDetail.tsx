@@ -1,77 +1,87 @@
 import { ErrorBoundary } from '@/components'
-import { projects } from '@/data/projects'
 import { errorMonitor, renderEmbed } from '@/utils'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
+import { ProjectsApi, type ApiProject } from '@/utils/api'
 
 // Type guard to validate project data structure
-const isValidProject = (project: any): project is (typeof projects)[0] => {
+const isValidProject = (project: any): project is ApiProject => {
   return (
     project &&
     typeof project.slug === 'string' &&
     typeof project.title === 'string' &&
-    typeof project.summary === 'string' &&
-    Array.isArray(project.tags)
+    // summary optional in API
+    (typeof project.summary === 'string' || project.summary == null) &&
+    (Array.isArray(project.tags) || project.tags == null)
   )
 }
 
 // Custom hook for safely fetching project data
 const useProjectData = (slug: string | undefined) => {
-  return useMemo(() => {
+  // New API-based loader
+  const [state, setState] = useState<{
+    project: ApiProject | null
+    error: string | null
+    errorType: string | null
+    loading: boolean
+  }>({ project: null, error: null, errorType: null, loading: true })
+
+  useEffect(() => {
     // Handle missing slug parameter
     if (!slug || typeof slug !== 'string') {
-      return {
+      setState({
         project: null,
         error: 'No project identifier provided',
-        errorType: 'missing-slug' as const,
-      }
+        errorType: 'missing-slug',
+        loading: false,
+      })
+      return
     }
-
     // Validate slug format (basic security check)
     if (!/^[a-z0-9-]+$/.test(slug)) {
-      return {
+      setState({
         project: null,
         error: 'Invalid project identifier format',
-        errorType: 'invalid-slug' as const,
-      }
+        errorType: 'invalid-slug',
+        loading: false,
+      })
+      return
     }
 
-    try {
-      // Find the project
-      const foundProject = projects.find(p => p?.slug === slug)
-
-      if (!foundProject) {
-        return {
-          project: null,
-          error: `Project "${slug}" not found`,
-          errorType: 'not-found' as const,
+    let cancelled = false
+    setState(prev => ({ ...prev, loading: true, error: null, errorType: null }))
+    ProjectsApi.getBySlug(slug)
+      .then(p => {
+        if (cancelled) return
+        if (!isValidProject(p)) {
+          setState({
+            project: null,
+            error: 'Project data is corrupted or invalid',
+            errorType: 'invalid-data',
+            loading: false,
+          })
+        } else {
+          setState({ project: p, error: null, errorType: null, loading: false })
         }
-      }
-
-      // Validate project data structure
-      if (!isValidProject(foundProject)) {
-        console.error('Invalid project data structure:', foundProject)
-        return {
+      })
+      .catch(err => {
+        if (cancelled) return
+        const statusNotFound = /404/.test(err?.message || '')
+        setState({
           project: null,
-          error: 'Project data is corrupted or invalid',
-          errorType: 'invalid-data' as const,
-        }
-      }
-
-      return {
-        project: foundProject,
-        error: null,
-        errorType: null,
-      }
-    } catch (error) {
-      console.error('Error fetching project data:', error)
-      return {
-        project: null,
-        error: 'Failed to load project data',
-        errorType: 'fetch-error' as const,
-      }
+          error: statusNotFound
+            ? `Project "${slug}" not found`
+            : err?.message || 'Failed to load project data',
+          errorType: statusNotFound ? 'not-found' : 'fetch-error',
+          loading: false,
+        })
+      })
+    return () => {
+      cancelled = true
     }
   }, [slug])
+
+  return state
 }
 
 // Error component that matches your site's aesthetic
@@ -118,12 +128,7 @@ const ProjectError = ({
     }
   })()
 
-  const similarProjects =
-    details.suggestSimilar && slug
-      ? projects
-          .filter(p => p.slug.includes(slug.toLowerCase()) || slug.toLowerCase().includes(p.slug))
-          .slice(0, 3)
-      : []
+  const similarProjects: Array<{ slug: string; title: string; emoji?: string | null }> = []
 
   return (
     <section className="section">
@@ -163,10 +168,10 @@ const ProjectError = ({
             <div className="mt-6 w-full rounded-2xl border border-border/30 bg-surface/70 p-5 text-left">
               <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Maybe you meant</p>
               <ul className="mt-3 flex flex-wrap gap-2">
-                {similarProjects.map(project => (
-                  <li key={project.slug}>
-                    <NavLink to={`/projects/${project.slug}`} className="chip text-[11px]">
-                      {project.emoji} {project.title}
+                {similarProjects.map(sp => (
+                  <li key={sp.slug}>
+                    <NavLink to={`/projects/${sp.slug}`} className="chip text-[11px]">
+                      {sp.emoji} {sp.title}
                     </NavLink>
                   </li>
                 ))}
@@ -233,9 +238,17 @@ const SafeImage = ({ src, alt, className }: { src: string; alt: string; classNam
 
 const ProjectDetail = () => {
   const { slug } = useParams()
-  const { project, error, errorType } = useProjectData(slug)
+  const { project, error, errorType, loading } = useProjectData(slug)
 
   // Handle error states
+  if (loading) {
+    return (
+      <section className="section">
+        <div className="surface-card px-8 py-10 text-center text-text-muted">Loading project…</div>
+      </section>
+    )
+  }
+
   if (error || !project) {
     return (
       <ProjectError

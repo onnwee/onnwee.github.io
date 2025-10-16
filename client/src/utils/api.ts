@@ -45,6 +45,8 @@ async function json<T>(res: Response): Promise<T> {
 // Projects
 export const ProjectsApi = {
   list: () => fetch(`${base}/projects`).then(json<ApiProject[]>),
+  getBySlug: (slug: string) =>
+    fetch(`${base}/projects/${encodeURIComponent(slug)}`).then(json<ApiProject>),
   create: (payload: Partial<ApiProject>) =>
     fetch(`${base}/projects`, {
       method: 'POST',
