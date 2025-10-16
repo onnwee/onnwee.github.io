@@ -3,6 +3,11 @@ INSERT INTO users (username, email, updated_at)
 VALUES ($1, $2, now())
 RETURNING *;
 
+-- name: CreateUserWithPassword :one
+INSERT INTO users (username, email, password_hash, updated_at)
+VALUES ($1, $2, $3, now())
+RETURNING *;
+
 -- name: GetUserByID :one
 SELECT * FROM users
 WHERE id = $1;
@@ -14,6 +19,10 @@ WHERE email = $1;
 -- name: GetUserByUsername :one
 SELECT * FROM users
 WHERE username = $1;
+
+-- name: GetUserForAuth :one
+SELECT id, username, email, password_hash, created_at, updated_at FROM users
+WHERE username = $1 OR email = $1;
 
 -- name: ListUsers :many
 SELECT * FROM users

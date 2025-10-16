@@ -89,9 +89,10 @@ type Session struct {
 }
 
 type User struct {
-	ID        int32        `json:"id"`
-	Username  string       `json:"username"`
-	Email     string       `json:"email"`
-	CreatedAt sql.NullTime `json:"created_at"`
-	UpdatedAt sql.NullTime `json:"updated_at"`
+	ID           int32          `json:"id"`
+	Username     string         `json:"username"`
+	Email        string         `json:"email"`
+	PasswordHash sql.NullString `json:"password_hash"`
+	CreatedAt    sql.NullTime   `json:"created_at"`
+	UpdatedAt    sql.NullTime   `json:"updated_at"`
 }
