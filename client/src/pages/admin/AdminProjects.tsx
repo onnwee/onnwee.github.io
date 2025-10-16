@@ -3,7 +3,24 @@ import { ProjectsApi, type ApiProject } from '@/utils/api'
 
 type Project = ApiProject
 
-const emptyProject: Project = { id: 0, slug: '', title: '' }
+const emptyProject: Project = {
+  id: 0,
+  slug: '',
+  title: '',
+  description: null,
+  repo_url: null,
+  live_url: null,
+  summary: null,
+  tags: [],
+  footer: null,
+  href: null,
+  external: false,
+  color: undefined,
+  emoji: null,
+  content: null,
+  image: null,
+  embed: null,
+}
 
 const AdminProjects = () => {
   const [projects, setProjects] = useState<Project[]>([])
@@ -53,6 +70,16 @@ const AdminProjects = () => {
           description: draft.description ?? null,
           repo_url: draft.repo_url ?? null,
           live_url: draft.live_url ?? null,
+          summary: draft.summary ?? null,
+          tags: draft.tags ?? [],
+          footer: draft.footer ?? null,
+          href: draft.href ?? null,
+          external: !!draft.external,
+          color: draft.color ?? undefined,
+          emoji: draft.emoji ?? null,
+          content: draft.content ?? null,
+          image: draft.image ?? null,
+          embed: draft.embed ?? null,
         })
         setProjects(prev => [created, ...prev])
       } else {
@@ -61,6 +88,16 @@ const AdminProjects = () => {
           description: draft.description ?? null,
           repo_url: draft.repo_url ?? null,
           live_url: draft.live_url ?? null,
+          summary: draft.summary ?? null,
+          tags: draft.tags ?? [],
+          footer: draft.footer ?? null,
+          href: draft.href ?? null,
+          external: !!draft.external,
+          color: draft.color ?? undefined,
+          emoji: draft.emoji ?? null,
+          content: draft.content ?? null,
+          image: draft.image ?? null,
+          embed: draft.embed ?? null,
         })
         setProjects(prev => prev.map((p, i) => (i === editingIndex ? updated : p)))
       }
@@ -141,6 +178,112 @@ const AdminProjects = () => {
               className="input"
               value={draft.live_url ?? ''}
               onChange={e => setDraft({ ...draft, live_url: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Summary</span>
+            <textarea
+              className="input min-h-20"
+              value={draft.summary ?? ''}
+              onChange={e => setDraft({ ...draft, summary: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">
+              Tags (comma-separated)
+            </span>
+            <input
+              className="input"
+              value={(draft.tags ?? []).join(', ')}
+              onChange={e =>
+                setDraft({
+                  ...draft,
+                  tags: e.target.value
+                    .split(',')
+                    .map(t => t.trim())
+                    .filter(Boolean),
+                })
+              }
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Footer</span>
+            <input
+              className="input"
+              value={draft.footer ?? ''}
+              onChange={e => setDraft({ ...draft, footer: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Href</span>
+            <input
+              className="input"
+              value={draft.href ?? ''}
+              onChange={e => setDraft({ ...draft, href: e.target.value })}
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={!!draft.external}
+              onChange={e => setDraft({ ...draft, external: e.target.checked })}
+            />
+            <span className="text-xs uppercase text-text-muted tracking-wide">External</span>
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Color</span>
+            <select
+              className="input"
+              value={draft.color ?? ''}
+              onChange={e =>
+                setDraft({
+                  ...draft,
+                  color: (e.target.value || undefined) as
+                    | 'green'
+                    | 'pink'
+                    | 'cyan'
+                    | 'yellow'
+                    | undefined,
+                })
+              }
+            >
+              <option value="">Default</option>
+              <option value="green">Green</option>
+              <option value="pink">Pink</option>
+              <option value="cyan">Cyan</option>
+              <option value="yellow">Yellow</option>
+            </select>
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Emoji</span>
+            <input
+              className="input"
+              value={draft.emoji ?? ''}
+              onChange={e => setDraft({ ...draft, emoji: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Image URL</span>
+            <input
+              className="input"
+              value={draft.image ?? ''}
+              onChange={e => setDraft({ ...draft, image: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Embed URL</span>
+            <input
+              className="input"
+              value={draft.embed ?? ''}
+              onChange={e => setDraft({ ...draft, embed: e.target.value })}
+            />
+          </label>
+          <label className="grid gap-1">
+            <span className="text-xs uppercase text-text-muted tracking-wide">Content</span>
+            <textarea
+              className="input min-h-28"
+              value={draft.content ?? ''}
+              onChange={e => setDraft({ ...draft, content: e.target.value })}
             />
           </label>
           <div className="flex gap-2">

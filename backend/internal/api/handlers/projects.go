@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
@@ -13,6 +14,70 @@ import (
 )
 
 func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
+	type projectResponse struct {
+		ID          int32     `json:"id"`
+		Title       string    `json:"title"`
+		Slug        string    `json:"slug"`
+		Description *string   `json:"description"`
+		RepoUrl     *string   `json:"repo_url"`
+		LiveUrl     *string   `json:"live_url"`
+		Summary     *string   `json:"summary"`
+		Tags        []string  `json:"tags"`
+		Footer      *string   `json:"footer"`
+		Href        *string   `json:"href"`
+		External    bool      `json:"external"`
+		Color       *string   `json:"color"`
+		Emoji       *string   `json:"emoji"`
+		Content     *string   `json:"content"`
+		Image       *string   `json:"image"`
+		Embed       *string   `json:"embed"`
+		CreatedAt   string    `json:"created_at"`
+		UpdatedAt   string    `json:"updated_at"`
+	}
+
+	toPtr := func(ns sql.NullString) *string {
+		if ns.Valid {
+			v := ns.String
+			return &v
+		}
+		return nil
+	}
+
+	toTimeString := func(t sql.NullTime) string {
+		if t.Valid {
+			return t.Time.Format(time.RFC3339)
+		}
+		return ""
+	}
+
+	toResp := func(p db.Project) projectResponse {
+		// Ensure non-nil tags
+		tags := p.Tags
+		if tags == nil {
+			tags = []string{}
+		}
+		return projectResponse{
+			ID:          p.ID,
+			Title:       p.Title,
+			Slug:        p.Slug,
+			Description: toPtr(p.Description),
+			RepoUrl:     toPtr(p.RepoUrl),
+			LiveUrl:     toPtr(p.LiveUrl),
+			Summary:     toPtr(p.Summary),
+			Tags:        tags,
+			Footer:      toPtr(p.Footer),
+			Href:        toPtr(p.Href),
+			External:    p.External,
+			Color:       toPtr(p.Color),
+			Emoji:       toPtr(p.Emoji),
+			Content:     toPtr(p.Content),
+			Image:       toPtr(p.Image),
+			Embed:       toPtr(p.Embed),
+			CreatedAt:   toTimeString(p.CreatedAt),
+			UpdatedAt:   toTimeString(p.UpdatedAt),
+		}
+	}
+
 	type projectPayload struct {
 		Title       string   `json:"title"`
 		Slug        string   `json:"slug"`
@@ -75,7 +140,7 @@ func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(project)
+		json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("POST")
 
 	// GET /projects - List projects
@@ -91,8 +156,14 @@ func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
 			projects = []db.Project{}
 		}
 
+		// Map to clean JSON
+		resp := make([]projectResponse, 0, len(projects))
+		for _, p := range projects {
+			resp = append(resp, toResp(p))
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(projects)
+		json.NewEncoder(w).Encode(resp)
 	}).Methods("GET")
 
 	// GET /projects/{slug} - Get project by slug
@@ -108,7 +179,7 @@ func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(project)
+		json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("GET")
 
 	// PUT /projects/{id} - Update a project
@@ -165,7 +236,7 @@ func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(project)
+		json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("PUT")
 
 	// DELETE /projects/{id} - Delete a project
