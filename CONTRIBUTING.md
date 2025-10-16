@@ -440,7 +440,7 @@ onnwee.github.io/
 │   │   └── index.css           # Global styles + Tailwind
 │   ├── package.json
 │   ├── vite.config.ts
-│   ├── tailwind.config.js
+│   ├── tailwind.config.ts
 │   └── eslint.config.js
 │
 ├── backend/                     # Go API
