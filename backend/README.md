@@ -10,31 +10,41 @@ This is the backend API for the `onnwee` platform. It's written in Go and uses P
    go mod tidy
     ```
 
-2. **Run database container**
+2. **Configure environment variables**
+
+   ```bash
+   cp .env.example .env
+   # Edit .env with your actual configuration
+   # At minimum, set DATABASE_URL to your PostgreSQL connection string
+   ```
+
+   See `.env.example` for all available configuration options.
+
+3. **Run database container**
 
    ```bash
    docker-compose up -d db
    ```
 
-3. **Reset the database**
+4. **Reset the database**
 
    ```bash
    make reset-db
    ```
 
-4. **Generate Go code from SQL**
+5. **Generate Go code from SQL**
 
    ```bash
    sqlc generate
    ```
 
-5. **Seed the database**
+6. **Seed the database**
 
    ```bash
    make seed
    ```
 
-6. **Run the server**
+7. **Run the server**
 
    ```bash
    go run cmd/server/main.go
@@ -115,6 +125,25 @@ This is the backend API for the `onnwee` platform. It's written in Go and uses P
   /db        → generated SQL + models
   /utils     → helper functions (IP parsing, etc.)
 ```
+
+---
+
+## 🔐 Environment Variables
+
+The backend requires certain environment variables to run. Copy `.env.example` to `.env` and configure:
+
+### Required
+* `DATABASE_URL` – PostgreSQL connection string (e.g., `postgres://user:pass@localhost:5432/dbname?sslmode=disable`)
+
+### Optional
+* `PORT` – Server port (default: `8080`)
+* `APP_ENV` – Environment name for telemetry (e.g., `development`, `staging`, `production`)
+* `SEED_NUM_USERS` – Number of users to create when seeding (default: `500`)
+* `SEED_NUM_POSTS` – Number of posts to create when seeding (default: `500`)
+* `SEED_NUM_PROJECTS` – Number of projects to create when seeding (default: `500`)
+* `SEED_DELAY` – Delay between seed operations (default: `50ms`)
+
+**⚠️ Security Note:** Never commit your `.env` file to version control. It contains sensitive credentials.
 
 ---
 
