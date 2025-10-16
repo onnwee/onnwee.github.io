@@ -97,8 +97,8 @@ backend/
 
 ## Deployment
 
-- The GitHub Actions workflow (see repository settings) runs `npm run deploy` to push the `client/dist` bundle to `gh-pages`.
-- Backend services are currently local-only, but Docker Compose provides a ready stack for future deployment targets.
+- **Frontend**: Automatically deployed to GitHub Pages via GitHub Actions workflow (`.github/workflows/deploy.yml`). On push to `main`, the workflow builds the client and deploys to Pages with proper caching and SPA routing support.
+- **Backend**: Currently local-only, but Docker Compose provides a ready stack for future deployment targets.
 
 ---
 

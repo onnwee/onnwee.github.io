@@ -8,6 +8,7 @@
       // Single Page Apps for GitHub Pages
       // https://github.com/rafgraph/spa-github-pages
       // Store the path in sessionStorage and redirect to index.html
+      // Note: '/' works for username.github.io repos that deploy to root domain
       sessionStorage.setItem('redirectPath', location.pathname + location.search + location.hash);
       location.replace('/');
     </script>
