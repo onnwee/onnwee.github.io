@@ -1,3 +1,4 @@
+export { default as AuthGate } from './AuthGate'
 export { default as ErrorBoundary } from './ErrorBoundary'
 export { default as ErrorOverlay } from './ErrorOverlay'
 export { default as FadeInWhenVisible } from './FadeInWhenVisible'
