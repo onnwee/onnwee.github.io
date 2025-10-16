@@ -29,7 +29,7 @@ jobs:
               if: github.event_name == 'issues' && github.event.action == 'opened'
               uses: actions-ecosystem/action-add-labels@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
                   labels: |
                       status: backlog
 
@@ -37,7 +37,7 @@ jobs:
               if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'review_requested')
               uses: actions-ecosystem/action-add-labels@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
                   labels: |
                       status: in progress
 
@@ -45,7 +45,7 @@ jobs:
               if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'review_requested')
               uses: actions-ecosystem/action-remove-labels@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
                   labels: |
                       status: backlog
                       status: review
@@ -55,7 +55,7 @@ jobs:
               if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
               uses: actions-ecosystem/action-add-labels@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
                   labels: |
                       status: done
 
@@ -63,7 +63,7 @@ jobs:
               if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
               uses: actions-ecosystem/action-remove-labels@v1
               with:
-                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
                   labels: |
                       status: backlog
                       status: in progress
