@@ -21,8 +21,6 @@ linters-settings:
   errcheck:
     check-blank: false
     check-type-assertions: false
-  govet:
-    check-shadowing: false
   revive:
     confidence: 0.8
 
