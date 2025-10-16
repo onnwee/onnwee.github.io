@@ -1,5 +1,5 @@
----
-# golangci-lint configuration for backend
+version: "1"
+
 run:
   timeout: 5m
   tests: true
@@ -7,24 +7,20 @@ run:
 
 linters:
   enable:
-    - errcheck      # Check for unchecked errors
-    - gosimple      # Simplify code
-    - govet         # Vet examines Go source code
-    - ineffassign   # Detects ineffectual assignments
-    - staticcheck   # Static analysis checks
-    - unused        # Checks for unused code
-    - gofmt         # Check code formatting
-    - misspell      # Check for misspellings
-    - revive        # Drop-in replacement for golint
-
-linters-settings:
-  errcheck:
-    check-blank: false
-    check-type-assertions: false
-  revive:
-    confidence: 0.8
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - typecheck
+    - gofmt
+    - misspell
+    - revive
+    - gosec
+    - gocritic
+    - stylecheck
 
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
