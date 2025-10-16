@@ -112,7 +112,7 @@ class ErrorMonitor {
 
   logReactError(
     error: Error,
-    errorInfo: React.ErrorInfo,
+    _errorInfo: React.ErrorInfo,
     component = 'React Component',
     severity: ErrorLog['severity'] = 'medium',
   ) {

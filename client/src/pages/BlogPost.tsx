@@ -1,4 +1,4 @@
-import { MdxComponents } from '@/components'
+// import { MdxComponents } from '@/components'
 import { lazy, Suspense, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 
@@ -22,7 +22,7 @@ const BlogPost = () => {
               {mod.frontmatter?.date && (
                 <p className="text-sm opacity-60 mb-6">{mod.frontmatter.date}</p>
               )}
-              <mod.default components={MdxComponents} />
+              <mod.default components={{}} />
             </article>
           ),
         }

@@ -1,6 +1,6 @@
-## 📝 TODO List
+# 📝 TODO List
 
-### ✅ Core Setup
+## ✅ Core Setup
 
 - [x] Vite + React + TypeScript configured
 - [x] Tailwind CSS with Catppucin Mocha inspired theme

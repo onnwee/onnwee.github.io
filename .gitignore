@@ -23,6 +23,7 @@ Thumbs.db
 .idea/
 node_modules/
 .env*
+!.env.example
 *.env
 
 # ========================
@@ -31,6 +32,7 @@ node_modules/
 client/node_modules/
 client/.env
 client/.env.*
+!client/.env.example
 client/dist/
 client/.vite/
 client/.next/
@@ -57,6 +59,7 @@ backend/build/
 backend/coverage/
 backend/.env
 backend/.env.*
+!backend/.env.example
 backend/sqlc.json
 backend/sqlc.gen.go
 backend/**/sqlc.json

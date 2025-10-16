@@ -3,6 +3,7 @@ import { About, Home, ProjectDetail, Projects, Support } from '@/pages'
 import AdminLayout from '@/pages/admin/AdminLayout'
 import AdminProjects from '@/pages/admin/AdminProjects'
 import AdminPosts from '@/pages/admin/AdminPosts'
+import AdminGate from '@/components/AdminGate'
 import { errorMonitor } from '@/utils'
 
 import { Route, Routes } from 'react-router-dom'
@@ -51,7 +52,14 @@ const App = () => {
           <Route path="/projects/:slug" element={<ProjectDetail />} />
           {/* Blog temporarily disabled */}
           {/* Admin routes (not linked from nav) */}
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route
+            path="/admin"
+            element={
+              <AdminGate>
+                <AdminLayout />
+              </AdminGate>
+            }
+          >
             <Route index element={<AdminProjects />} />
             <Route path="projects" element={<AdminProjects />} />
             <Route path="posts" element={<AdminPosts />} />

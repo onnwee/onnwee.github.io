@@ -1,6 +1,6 @@
 // src/components/LazyGrid.tsx
 import { useOnScreen } from '@/hooks'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 type LazyGridProps<T> = {
   items: T[]
@@ -22,8 +22,7 @@ export default function LazyGrid<T>({
   emptyState = <p className="text-sm text-gray-400 mt-4">No results found.</p>,
 }: LazyGridProps<T>) {
   const [visibleCount, setVisibleCount] = useState(itemsPerPage)
-  const loaderRef = useRef<HTMLDivElement>(null)
-  const isVisible = useOnScreen(loaderRef, '-20px')
+  const [loaderRef, isVisible] = useOnScreen<HTMLDivElement>('-20px')
 
   const loadMore = useCallback(() => {
     setVisibleCount(prev => Math.min(prev + itemsPerPage, items.length))
