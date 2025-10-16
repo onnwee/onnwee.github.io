@@ -1,51 +1,50 @@
 /** @type {import('tailwindcss').Config} */
 import typography from '@tailwindcss/typography'
 
+const withAlpha = (variable: string) => `rgb(var(${variable}) / <alpha-value>)`
+
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', './src/styles/**/*.css'],
   theme: {
     extend: {
       colors: {
-        background: 'var(--color-background)',
-        primary: 'var(--color-primary)',
-        secondary: 'var(--color-secondary)',
-        accent: 'var(--color-accent)',
-        neutral: 'var(--color-neutral)',
-        offwhite: 'var(--color-offwhite)',
-        glitchGreen: 'var(--color-glitch-green)',
-        glitchBlue: 'var(--color-glitch-blue)',
-        glitchRed: 'var(--color-glitch-red)',
+        background: withAlpha('--color-background'),
+        surface: withAlpha('--color-surface'),
+        'surface-strong': withAlpha('--color-surface-strong'),
+        'surface-elevated': withAlpha('--color-surface-elevated'),
+        border: withAlpha('--color-border'),
+        text: withAlpha('--color-text'),
+        'text-muted': withAlpha('--color-text-muted'),
+        accent: withAlpha('--color-accent'),
+        highlight: withAlpha('--color-highlight'),
+        crust: withAlpha('--color-crust'),
+        glow: withAlpha('--color-glow'),
       },
       fontFamily: {
+        sans: ['var(--font-sans)', 'sans-serif'],
         display: ['var(--font-display)', 'sans-serif'],
-        handwritten: ['var(--font-handwritten)', 'cursive'],
         mono: ['var(--font-mono)', 'monospace'],
       },
       boxShadow: {
-        neon: 'var(--shadow-neon)',
+        soft: 'var(--shadow-soft)',
+        pop: 'var(--shadow-pop)',
         glow: 'var(--shadow-glow)',
+        ring: 'var(--ring-glow)',
       },
-      animation: {
-        glitch: 'glitch 0.8s infinite',
-        fadeIn: 'fadeIn 0.6s ease-out forwards',
-        fadeUp: 'fadeUp 0.8s ease-out forwards',
+      borderRadius: {
+        xl: 'var(--radius-lg)',
+        lg: 'var(--radius-md)',
+        md: 'var(--radius-sm)',
       },
-      keyframes: {
-        glitch: {
-          '0%, 100%': { transform: 'translate(0)' },
-          '20%': { transform: 'translate(-2px, 2px)' },
-          '40%': { transform: 'translate(2px, -2px)' },
-          '60%': { transform: 'translate(-1px, 1px)' },
-          '80%': { transform: 'translate(1px, -1px)' },
-        },
-        fadeIn: {
-          from: { opacity: '0' },
-          to: { opacity: '1' },
-        },
-        fadeUp: {
-          from: { opacity: '0', transform: 'translateY(20px)' },
-          to: { opacity: '1', transform: 'translateY(0)' },
-        },
+      backdropBlur: {
+        30: '30px',
+      },
+      transitionTimingFunction: {
+        'soft-spring': 'cubic-bezier(0.22, 1, 0.36, 1)',
+      },
+      backgroundImage: {
+        'hero-mesh': 'var(--gradient-hero)',
+        'accent-gradient': 'var(--gradient-accent)',
       },
     },
   },

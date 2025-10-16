@@ -5,18 +5,15 @@ type TagFilterProps = {
 }
 
 const TagFilter = ({ tags, selected, onSelect }: TagFilterProps) => (
-  <div className="flex flex-wrap gap-2 mb-6">
-    <button
-      onClick={() => onSelect(null)}
-      className={`tag ${!selected ? 'bg-accent text-black' : 'bg-neutral'}`}
-    >
-      All
+  <div className="flex flex-wrap gap-3">
+    <button onClick={() => onSelect(null)} className={`chip ${!selected ? 'is-active' : ''}`}>
+      All posts
     </button>
     {tags.map(tag => (
       <button
         key={tag}
         onClick={() => onSelect(tag)}
-        className={`tag ${selected === tag ? 'bg-accent text-black' : 'bg-neutral'}`}
+        className={`chip ${selected === tag ? 'is-active' : ''}`}
       >
         #{tag}
       </button>

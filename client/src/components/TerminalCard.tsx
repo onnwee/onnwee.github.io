@@ -1,5 +1,4 @@
 import { NavLink } from 'react-router-dom'
-import { useTheme } from '@/hooks'
 
 interface TerminalCardProps {
   title: string
@@ -20,37 +19,70 @@ const TerminalCard = ({
   external = false, // Provide default value for clarity
   tags,
   className = '',
+  color,
 }: TerminalCardProps) => {
-  const { glitchMode } = useTheme()
+  const accentPalette: Record<NonNullable<TerminalCardProps['color']>, string> = {
+    green: 'rgba(166, 227, 161, 0.8)',
+    pink: 'rgba(245, 194, 231, 0.85)',
+    cyan: 'rgba(148, 226, 213, 0.85)',
+    yellow: 'rgba(249, 226, 175, 0.85)',
+  }
+
+  const accent = color ? accentPalette[color] : 'rgba(var(--color-accent), 0.85)'
 
   // Build the card content that will be reused across all scenarios
   const baseCard = (
-    <div
-      className={`relative border border-green-400 bg-neutral p-4 font-mono text-green-300 shadow-md transition-all duration-200
-        ${glitchMode ? 'animate-glitch shadow-neon border-glitchRed' : ''}
-        ${href ? 'hover:scale-[1.015] hover:shadow-glow hover:border-accent cursor-pointer' : ''}
-        ${className}`}
+    <article
+      className={`group relative overflow-hidden rounded-3xl border border-border/40 bg-surface/80 px-8 py-7 shadow-soft transition-all duration-500 hover:-translate-y-1.5 hover:border-accent/45 hover:shadow-pop ${
+        href ? 'cursor-pointer' : ''
+      } ${className}`}
+      style={{
+        backdropFilter: 'blur(22px)',
+      }}
     >
-      <div className="mb-2 text-sm text-green-500">[onnwee@localhost ~]$ {title}</div>
-      {summary && <p className="pl-2 text-base mb-2">{summary}</p>}
-      {tags && (
-        <div className="pl-2 mb-2 text-xs flex gap-2 flex-wrap text-glitchGreen">
-          {tags.map((tag, i) => (
-            <span
-              key={i}
-              className={`px-2 py-1 rounded text-xs border ${
-                glitchMode
-                  ? 'border-glitchGreen text-glitchGreen shadow-neon'
-                  : 'border-neutral text-green-300'
-              }`}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        style={{
+          background: `radial-gradient(circle at 20% -10%, ${accent}, transparent 55%), radial-gradient(circle at 80% 0%, rgba(var(--color-highlight), 0.22), transparent 60%)`,
+          filter: 'blur(60px)',
+        }}
+      />
+
+      <div className="relative flex items-center gap-3 text-[11px] font-semibold uppercase tracking-[0.35em] text-text-muted">
+        <span className="inline-flex h-1.5 w-8 rounded-full bg-accent/60" />
+        <span>Featured</span>
+      </div>
+
+      <h3 className="relative mt-5 text-2xl font-semibold text-text">{title}</h3>
+
+      {summary && (
+        <p className="relative mt-3 text-base leading-relaxed text-text-muted/90">{summary}</p>
+      )}
+
+      {tags && tags.length > 0 && (
+        <ul className="relative mt-5 flex flex-wrap gap-2">
+          {tags.map(tag => (
+            <li
+              key={tag}
+              className="chip"
+              style={{
+                borderColor: 'rgba(var(--color-accent), 0.32)',
+                color: 'rgba(var(--color-text), 0.75)',
+              }}
             >
               {tag}
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
-      {footer && <div className="mt-4 text-xs text-green-400 opacity-60"># {footer}</div>}
-    </div>
+
+      {footer && (
+        <footer className="relative mt-6 flex items-center gap-2 text-[11px] uppercase tracking-[0.3em] text-text-muted/70">
+          <span className="inline-flex h-1 w-5 rounded-full bg-highlight/60" />
+          <span>{footer}</span>
+        </footer>
+      )}
+    </article>
   )
 
   // Now we handle ALL possible scenarios and always return something

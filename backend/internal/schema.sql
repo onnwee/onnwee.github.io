@@ -28,6 +28,17 @@ CREATE TABLE IF NOT EXISTS projects (
   description TEXT,
   repo_url TEXT,
   live_url TEXT,
+  -- Frontend-aligned fields
+  summary TEXT,
+  tags TEXT[] NOT NULL DEFAULT '{}',
+  footer TEXT,
+  href TEXT,
+  external BOOLEAN NOT NULL DEFAULT false,
+  color TEXT,
+  emoji TEXT,
+  content TEXT,
+  image TEXT,
+  embed TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE

@@ -1,7 +1,6 @@
-import { ErrorBoundary, TerminalCard } from '@/components'
+import { ErrorBoundary } from '@/components'
 import { projects } from '@/data/projects'
-import { useTheme } from '@/hooks'
-import { renderEmbed, errorMonitor } from '@/utils'
+import { errorMonitor, renderEmbed } from '@/utils'
 import { useMemo, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
 
@@ -85,140 +84,147 @@ const ProjectError = ({
   errorType: string
   slug?: string
 }) => {
-  const { glitchMode } = useTheme()
-
-  // Customize error message and suggestions based on error type
-  const getErrorDetails = () => {
+  const details = (() => {
     switch (errorType) {
       case 'not-found':
         return {
           icon: '🔍',
-          suggestion: "Check the URL or browse all projects to find what you're looking for.",
-          showSimilar: true,
+          title: 'Project not found',
+          suggestion: "Double-check the URL or browse the full index—it's probably nearby.",
+          suggestSimilar: true,
         }
       case 'invalid-slug':
         return {
           icon: '⚠️',
-          suggestion: 'The project URL contains invalid characters.',
-          showSimilar: false,
+          title: 'That URL looks off',
+          suggestion: 'Project slugs only include lowercase letters, numbers, and dashes.',
+          suggestSimilar: false,
         }
       case 'invalid-data':
         return {
           icon: '💥',
-          suggestion: 'The project data appears to be corrupted. Please try refreshing the page.',
-          showSimilar: false,
+          title: 'Data hiccup',
+          suggestion:
+            'Something in the project entry is misconfigured. Give it another try shortly.',
+          suggestSimilar: false,
         }
       default:
         return {
           icon: '❌',
-          suggestion: 'Please try refreshing the page or contact support if the problem persists.',
-          showSimilar: true,
+          title: 'Something went sideways',
+          suggestion: 'A quick refresh usually fixes it. If not, feel free to reach out.',
+          suggestSimilar: true,
         }
     }
-  }
+  })()
 
-  const { icon, suggestion, showSimilar } = getErrorDetails()
-
-  // Find similar projects if requested (simple fuzzy matching)
   const similarProjects =
-    showSimilar && slug
+    details.suggestSimilar && slug
       ? projects
           .filter(p => p.slug.includes(slug.toLowerCase()) || slug.toLowerCase().includes(p.slug))
           .slice(0, 3)
       : []
 
   return (
-    <div className="section">
-      <div
-        className={`p-6 border rounded font-mono text-center ${
-          glitchMode
-            ? 'border-glitchRed bg-neutral text-glitchRed animate-glitch'
-            : 'border-red-400 bg-neutral text-red-300'
-        }`}
-        role="alert"
-        aria-live="assertive"
-      >
-        <div className="text-4xl mb-4">{icon}</div>
-        <h1 className="text-2xl font-display mb-4">Project Not Found</h1>
-        <p className="mb-4 text-base">{error}</p>
-        <p className="mb-6 text-sm opacity-80">{suggestion}</p>
+    <section className="section">
+      <div className="surface-card relative overflow-hidden px-10 py-12 text-center">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-60 blur-3xl"
+          style={{
+            background:
+              'radial-gradient(circle at 50% 0%, rgba(var(--color-accent), 0.32), transparent 60%)',
+          }}
+          aria-hidden
+        />
 
-        {/* Action buttons */}
-        <div className="flex gap-3 justify-center flex-wrap mb-6">
-          <NavLink to="/projects" className="btn-primary">
-            Browse All Projects
-          </NavLink>
-          <button
-            onClick={() => window.location.reload()}
-            className="btn-primary bg-secondary hover:bg-glitchBlue"
-          >
-            Refresh Page
-          </button>
-        </div>
+        <div className="relative z-10 mx-auto flex max-w-xl flex-col items-center gap-5">
+          <span className="text-4xl">{details.icon}</span>
+          <h1 className="text-3xl font-semibold text-text">{details.title}</h1>
+          <p className="text-base text-text-muted/90">{error}</p>
+          <p className="text-sm text-text-muted/80">{details.suggestion}</p>
 
-        {/* Similar projects suggestions */}
-        {similarProjects.length > 0 && (
-          <div className="border-t border-current pt-4 mt-4">
-            <p className="text-sm mb-3 opacity-80">Similar projects you might be interested in:</p>
-            <div className="flex gap-2 justify-center flex-wrap">
-              {similarProjects.map(project => (
-                <NavLink
-                  key={project.slug}
-                  to={`/projects/${project.slug}`}
-                  className="text-xs px-3 py-1 border border-current rounded hover:bg-current hover:text-neutral transition-colors"
-                >
-                  {project.emoji} {project.title}
-                </NavLink>
-              ))}
-            </div>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
+            <NavLink
+              to="/projects"
+              className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-surface/70 px-5 py-2 text-sm font-medium text-text transition-colors duration-300 hover:border-accent/40 hover:bg-accent/10 hover:text-accent"
+            >
+              Browse projects
+            </NavLink>
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-5 py-2 text-sm font-semibold text-accent transition-colors duration-300 hover:bg-accent/25"
+            >
+              Refresh page
+            </button>
           </div>
-        )}
+
+          {similarProjects.length > 0 && (
+            <div className="mt-6 w-full rounded-2xl border border-border/30 bg-surface/70 p-5 text-left">
+              <p className="text-xs uppercase tracking-[0.32em] text-text-muted">Maybe you meant</p>
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {similarProjects.map(project => (
+                  <li key={project.slug}>
+                    <NavLink to={`/projects/${project.slug}`} className="chip text-[11px]">
+                      {project.emoji} {project.title}
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   )
 }
 
 // Safe image component with error handling
 const SafeImage = ({ src, alt, className }: { src: string; alt: string; className?: string }) => {
-  const [imageError, setImageError] = useState(false)
-  const [imageLoading, setImageLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
-  if (imageError) {
+  if (hasError) {
     return (
       <div
-        className={`bg-neutral border border-neutral-600 flex items-center justify-center text-center p-8 ${className}`}
+        className={`surface-card flex min-h-[260px] items-center justify-center text-center ${className ?? ''}`}
         role="img"
-        aria-label="Image failed to load"
+        aria-label="Illustration unavailable"
       >
-        <div>
-          <div className="text-2xl mb-2">🖼️</div>
-          <div className="text-sm opacity-60">Image could not be loaded</div>
+        <div className="space-y-2">
+          <div className="text-2xl">🖼️</div>
+          <p className="text-sm text-text-muted">Image could not be loaded</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="relative">
-      {imageLoading && (
+    <div
+      className={`relative overflow-hidden rounded-3xl border border-border/35 bg-surface/70 shadow-soft ${className ?? ''}`}
+    >
+      {isLoading && (
         <div
-          className={`absolute inset-0 bg-neutral animate-pulse flex items-center justify-center ${className}`}
+          className="absolute inset-0 flex items-center justify-center bg-surface-strong/40 backdrop-blur-sm"
           role="status"
           aria-live="polite"
           aria-busy="true"
         >
-          <div className="text-xs opacity-60">Loading image...</div>
+          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.3em] text-text-muted">
+            <span className="h-2 w-2 animate-ping rounded-full bg-accent" />
+            Loading visual
+          </div>
         </div>
       )}
+
       <img
         src={src}
         alt={alt || 'Project image'}
-        role="img"
-        className={`${className} ${imageLoading ? 'opacity-0' : 'opacity-100'} transition-opacity`}
-        onLoad={() => setImageLoading(false)}
+        className={`h-full w-full object-cover transition-opacity duration-700 ${isLoading ? 'opacity-0' : 'opacity-100'}`}
+        onLoad={() => setIsLoading(false)}
         onError={() => {
-          setImageError(true)
-          setImageLoading(false)
+          setHasError(true)
+          setIsLoading(false)
         }}
       />
     </div>
@@ -228,7 +234,6 @@ const SafeImage = ({ src, alt, className }: { src: string; alt: string; classNam
 const ProjectDetail = () => {
   const { slug } = useParams()
   const { project, error, errorType } = useProjectData(slug)
-  const { glitchMode } = useTheme()
 
   // Handle error states
   if (error || !project) {
@@ -243,44 +248,96 @@ const ProjectDetail = () => {
 
   // Safe rendering with null checks for optional fields
   return (
-    <div className="section">
-      <h1 className="text-4xl font-display mb-4">
-        {project.emoji ?? ''} {project.title}
-      </h1>
+    <section className="section space-y-10">
+      <article className="surface-card relative overflow-hidden px-8 py-10">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-50 blur-3xl"
+          style={{
+            background:
+              'radial-gradient(circle at 12% 18%, rgba(var(--color-accent), 0.28), transparent 60%), radial-gradient(circle at 82% 6%, rgba(var(--color-highlight), 0.22), transparent 55%)',
+          }}
+          aria-hidden
+        />
 
-      {/* Tags with safe rendering */}
-      {project.tags && project.tags.length > 0 && (
-        <div className="mb-6">
-          <div className="text-sm flex gap-3 flex-wrap">
-            {project.tags.map((tag, i) => (
-              <span
-                key={i}
-                className="px-2 py-1 bg-neutral border border-glitchGreen text-glitchGreen rounded text-xs"
+        <div className="relative z-10 flex flex-col gap-6">
+          <div className="flex flex-wrap items-center gap-4 text-xs uppercase tracking-[0.32em] text-text-muted">
+            <span className="inline-flex h-1.5 w-9 rounded-full bg-accent/70" />
+            <span>{project.external ? 'Case Study' : 'Workbench'}</span>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <h1 className="text-4xl font-semibold text-text">
+              {project.emoji && <span className="mr-2 text-3xl align-middle">{project.emoji}</span>}
+              {project.title}
+            </h1>
+            <p className="max-w-3xl text-lg leading-relaxed text-text-muted/90">
+              {project.summary}
+            </p>
+          </div>
+
+          {project.tags?.length ? (
+            <ul className="flex flex-wrap gap-2">
+              {project.tags.map(tag => (
+                <li key={tag}>
+                  <span className="chip">{tag}</span>
+                </li>
+              ))}
+            </ul>
+          ) : null}
+
+          <div className="flex flex-wrap gap-3">
+            <NavLink
+              to="/projects"
+              className="inline-flex items-center gap-2 rounded-full border border-border/40 bg-surface/70 px-5 py-2 text-sm font-medium text-text transition-colors duration-300 hover:border-accent/40 hover:bg-accent/10 hover:text-accent"
+            >
+              ← Back to projects
+            </NavLink>
+
+            {project.href && (
+              <a
+                href={project.href}
+                target={project.external ? '_blank' : '_self'}
+                rel={project.external ? 'noopener noreferrer' : undefined}
+                className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-5 py-2 text-sm font-semibold text-accent transition-colors duration-300 hover:bg-accent/25"
               >
-                {tag}
-              </span>
-            ))}
+                {project.external ? 'View repository' : 'Open project'}
+              </a>
+            )}
           </div>
         </div>
-      )}
+      </article>
 
-      {/* Safe image rendering */}
-      {project.image && (
-        <SafeImage
-          src={project.image}
-          alt={`${project.title} screenshot`}
-          className={`mb-6 rounded ${glitchMode ? 'glitch-box' : 'clean-box'}`}
-        />
-      )}
+      {project.image ? <SafeImage src={project.image} alt={`${project.title} screenshot`} /> : null}
 
-      {/* Safe embed rendering */}
-      {project.embed && (
+      {project.content ? (
+        <article className="surface-card px-8 py-8 text-base leading-relaxed text-text-muted/90">
+          {project.content
+            .split('\n')
+            .map(paragraph => paragraph.trim())
+            .filter(Boolean)
+            .map((paragraph, index, array) => (
+              <p
+                key={`${project.slug}-paragraph-${index}`}
+                className={index === array.length - 1 ? undefined : 'mb-4'}
+              >
+                {paragraph}
+              </p>
+            ))}
+        </article>
+      ) : null}
+
+      {project.embed ? (
         <ErrorBoundary
           fallback={({ error, reset }) => (
-            <div className="mb-6 p-4 border border-red-400 rounded text-center">
-              <div className="text-sm mb-2">Failed to load embed</div>
-              <button onClick={reset} className="btn-primary text-xs">
-                Retry
+            <div className="surface-card px-6 py-6 text-center text-sm text-text-muted">
+              <p className="mb-3 font-medium text-text">We couldn’t load the embedded preview.</p>
+              <p className="mb-4 text-xs text-text-muted/80">{error?.message ?? 'Unknown error'}</p>
+              <button
+                type="button"
+                onClick={reset}
+                className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-4 py-2 text-xs font-semibold text-accent transition-colors duration-300 hover:bg-accent/25"
+              >
+                Try again
               </button>
             </div>
           )}
@@ -288,27 +345,10 @@ const ProjectDetail = () => {
             errorMonitor.logReactError(error, errorInfo, 'ProjectDetail', 'high')
           }}
         >
-          {renderEmbed({ url: project.embed, title: project.title, glitchMode })}
+          {renderEmbed({ url: project.embed, title: project.title })}
         </ErrorBoundary>
-      )}
-
-      {/* Project Description */}
-      <TerminalCard
-        title={project.slug}
-        summary={project.content || project.summary}
-        footer={project.external ? 'External Link' : 'Internal Project'}
-        href={project.href}
-        external={project.external}
-        color={project.color}
-      />
-
-      {/* Back Link */}
-      <div className="mt-6">
-        <NavLink to="/projects" className="link-hover text-glitchBlue text-sm">
-          ← Back to Projects
-        </NavLink>
-      </div>
-    </div>
+      ) : null}
+    </section>
   )
 }
 

@@ -1,5 +1,8 @@
-import { ErrorBoundary, ErrorOverlay, Nav, ThemeToggle } from '@/components'
-import { About, Blog, BlogPost, Home, ProjectDetail, Projects, Support } from '@/pages'
+import { ErrorBoundary, ErrorOverlay, Nav } from '@/components'
+import { About, Home, ProjectDetail, Projects, Support } from '@/pages'
+import AdminLayout from '@/pages/admin/AdminLayout'
+import AdminProjects from '@/pages/admin/AdminProjects'
+import AdminPosts from '@/pages/admin/AdminPosts'
 import { errorMonitor } from '@/utils'
 
 import { Route, Routes } from 'react-router-dom'
@@ -46,8 +49,13 @@ const App = () => {
           <Route path="/projects" element={<Projects />} />
           {/* ProjectDetail has its own internal error handling, but this provides an extra safety net */}
           <Route path="/projects/:slug" element={<ProjectDetail />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:slug" element={<BlogPost />} />
+          {/* Blog temporarily disabled */}
+          {/* Admin routes (not linked from nav) */}
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminProjects />} />
+            <Route path="projects" element={<AdminProjects />} />
+            <Route path="posts" element={<AdminPosts />} />
+          </Route>
           <Route path="/about" element={<About />} />
           <Route path="/support" element={<Support />} />
         </Routes>
@@ -72,6 +80,7 @@ const App = () => {
         }}
       >
         {/* <ThemeToggle /> */}
+        <></>
       </ErrorBoundary>
     </>
   )

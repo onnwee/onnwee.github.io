@@ -1,51 +1,21 @@
+import { FLAVOR_META } from '@/context/ThemeContext'
 import { useTheme } from '@/hooks'
-import { Moon, Sun } from 'lucide-react'
+import { RefreshCcw } from 'lucide-react'
 
 const ThemeToggle = () => {
-  const {
-    // theme, // 'dark', 'light', 'dracula', etc.
-    // setTheme, // use to manually set theme
-    isDark, // true if theme === 'dark'
-    toggleDark, // toggles between dark/light
-    // glitchMode,
-    // toggleGlitch,
-  } = useTheme()
-  // const themes = ['dark', 'light', 'dracula', 'mocha']
-  return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
-      <button
-        onClick={toggleDark}
-        className="btn-primary flex items-center justify-center gap-1 rounded-full p-2 backdrop-blur-sm hover:scale-105 transition"
-        title="Toggle Dark Mode"
-        role="button"
-        aria-label="Toggle dark mode"
-        aria-pressed={isDark}
-      >
-        {isDark ? <Sun size={18} /> : <Moon size={18} />}
-      </button>
+  const { flavor, cycleFlavor } = useTheme()
+  const accent = FLAVOR_META[flavor].accent
 
-      {/* <button
-        onClick={toggleGlitch}
-        className={`btn-primary flex items-center justify-center gap-1 rounded-full p-2 backdrop-blur-sm hover:scale-105 transition ${
-          glitchMode ? 'glitch-toggle' : ''
-        }`}
-        title="Toggle Glitch Mode"
-        role="button"
-        aria-label="Toggle glitch mode"
-        aria-pressed={glitchMode}
-      >
-        <Zap size={18} />
-      </button>
-      {themes.map(t => (
-        <button
-          key={t}
-          onClick={() => setTheme(t)}
-          className={`btn-primary ${theme === t ? 'ring-2 ring-accent' : ''}`}
-        >
-          {t}
-        </button>
-      ))} */}
-    </div>
+  return (
+    <button
+      onClick={cycleFlavor}
+      className="fixed bottom-5 right-5 z-50 inline-flex h-12 w-12 items-center justify-center rounded-full border border-border/40 bg-surface/80 text-accent shadow-pop transition-transform duration-300 hover:-translate-y-1 hover:border-accent/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+      title="Shuffle Catppuccin flavor"
+      aria-label="Shuffle Catppuccin flavor"
+      style={{ boxShadow: `0 10px 30px -12px ${accent}55` }}
+    >
+      <RefreshCcw size={18} />
+    </button>
   )
 }
 

@@ -1,4 +1,3 @@
-import { useTheme } from '@/hooks'
 import React from 'react'
 
 interface ErrorBoundaryState {
@@ -15,32 +14,37 @@ interface ErrorBoundaryProps {
 
 // Default fallback component that matches your site's aesthetic
 const DefaultErrorFallback: React.FC<{ error?: Error; reset: () => void }> = ({ error, reset }) => {
-  const { glitchMode } = useTheme()
-
   return (
-    <div
-      className={`p-6 border rounded font-mono ${
-        glitchMode
-          ? 'border-glitchRed bg-neutral text-glitchRed animate-glitch'
-          : 'border-red-400 bg-neutral text-red-300'
-      }`}
-    >
-      <div className="mb-4 text-sm text-red-500">[ERROR] Something went wrong</div>
+    <div className="surface-card flex flex-col gap-4 rounded-3xl border border-border/35 bg-surface/70 px-6 py-7 text-sm text-text-muted shadow-soft">
+      <div className="flex items-center gap-3 text-text">
+        <span className="text-2xl">⚠️</span>
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.32em] text-text-muted">
+            Runtime hiccup
+          </p>
+          <p className="text-base font-medium text-text">
+            {error?.message || 'An unexpected error occurred'}
+          </p>
+        </div>
+      </div>
 
-      <div className="mb-4 text-base">{error?.message || 'An unexpected error occurred'}</div>
-
-      {/* Only show technical details in development */}
-      {import.meta.env.NODE_ENV === 'development' && error?.stack && (
-        <details className="mb-4 text-xs opacity-60">
-          <summary className="cursor-pointer hover:opacity-80">
-            Technical Details (Development Only)
+      {import.meta.env.NODE_ENV === 'development' && error?.stack ? (
+        <details className="rounded-2xl border border-border/25 bg-surface/70 px-4 py-3 text-xs text-text-muted/80">
+          <summary className="cursor-pointer text-text transition-colors duration-300 hover:text-accent">
+            Technical details (dev only)
           </summary>
-          <pre className="mt-2 p-2 bg-black rounded text-xs overflow-auto">{error.stack}</pre>
+          <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-[11px] leading-relaxed">
+            {error.stack}
+          </pre>
         </details>
-      )}
+      ) : null}
 
-      <button onClick={reset} className="btn-primary text-xs">
-        Try Again
+      <button
+        type="button"
+        onClick={reset}
+        className="self-start rounded-full bg-accent/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-accent transition-colors duration-300 hover:bg-accent/25"
+      >
+        Try again
       </button>
     </div>
   )

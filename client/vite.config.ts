@@ -1,27 +1,22 @@
 // vite.config.ts
-import mdx from '@mdx-js/rollup'
 import react from '@vitejs/plugin-react-swc'
-import matter from 'gray-matter'
 import path from 'path'
 import { defineConfig } from 'vite'
 
-function frontmatterPlugin() {
-  return {
-    name: 'vite-plugin-mdx-frontmatter',
-    transform(code: string, id: string) {
-      if (!id.endsWith('.mdx')) return null
-      const { content, data } = matter(code)
-      const exportCode = `export const frontmatter = ${JSON.stringify(data)}`
-      return {
-        code: `${content}\n\n${exportCode}`,
-        map: null,
-      }
-    },
-  }
-}
+// Blog and MDX processing are temporarily disabled to improve dev startup time.
+// To re-enable later: reinstall/add the MDX + frontmatter plugin and wire routes back in.
 
 export default defineConfig({
-  plugins: [frontmatterPlugin(), mdx(), react()],
+  plugins: [react()],
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api/, ''),
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

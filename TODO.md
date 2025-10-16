@@ -3,7 +3,7 @@
 ### ✅ Core Setup
 
 - [x] Vite + React + TypeScript configured
-- [x] Tailwind CSS with Dracula-inspired theme
+- [x] Tailwind CSS with Catppucin Mocha inspired theme
 - [x] Google Fonts with fallback for hacker + Evangelion aesthetic
 - [x] Routing using `react-router-dom`
 - [x] Alias `@` set to `src/`
@@ -60,10 +60,11 @@
 
 ### 📃 Blog (Planned)
 
-- [ ] Add MDX support via `vite-plugin-mdx`
-- [ ] Create MDX-enhanced components (`<Callout />`, `<Footnote />`, etc.)
+- [x] Add MDX support via `vite-plugin-mdx` + frontmatter transformer
+- [x] Create MDX-enhanced components (`<Callout />`, `<GlitchBox />`, `<Note />`)
 - [ ] RSS feed for blog posts (optional)
-- [ ] Filterable/tagged blog page
+- [x] Filterable/tagged blog page
+- [ ] Progressive image loading or blur-up placeholders for feature art
 
 ### 🧱 Visual Polish
 
@@ -71,6 +72,22 @@
 - [ ] `<GlitchWrapper>` component (optional HOC or div)
 - [ ] Glitchy hover states on links/buttons
 - [ ] Background noise or animation (subtle)
+
+### 🧩 Backend & Integration
+
+- [x] Gorilla Mux router with middleware chain (`Logging`, `Recovery`, `CORS`, `RateLimit`, `RealIP`)
+- [x] Prometheus `/metrics` endpoint and dockerized scrape config
+- [x] sqlc pipeline for typed queries (`internal/queries` → `internal/db`)
+- [ ] Expose pagination/meta responses for list endpoints
+- [ ] Wire frontend data fetching to Go API (projects, posts)
+- [ ] Add auth/session strategy for admin tools
+- [ ] Document Grafana dashboards / provide starter panel JSON
+
+### 📈 Analytics & Tooling
+
+- [ ] Add Umami analytics script (toggle via env)
+- [ ] Integrate Meilisearch for full-text blog/project search
+- [ ] Error reporting hookup (e.g., Sentry) using `errorMonitor` pipeline
 
 ### 🚀 Deployment
 

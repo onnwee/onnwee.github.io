@@ -9,18 +9,65 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
+	"github.com/onnwee/onnwee.github.io/backend/internal/utils"
 )
 
 func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
+	type projectPayload struct {
+		Title       string   `json:"title"`
+		Slug        string   `json:"slug"`
+		Description *string  `json:"description"`
+		RepoUrl     *string  `json:"repo_url"`
+		LiveUrl     *string  `json:"live_url"`
+		Summary     *string  `json:"summary"`
+		Tags        []string `json:"tags"`
+		Footer      *string  `json:"footer"`
+		Href        *string  `json:"href"`
+		External    *bool    `json:"external"`
+		Color       *string  `json:"color"`
+		Emoji       *string  `json:"emoji"`
+		Content     *string  `json:"content"`
+		Image       *string  `json:"image"`
+		Embed       *string  `json:"embed"`
+	}
 	// POST /projects - Create a project
 	r.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
-		var input db.CreateProjectParams
-		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		var body projectPayload
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			http.Error(w, `{"error":"Invalid JSON"}`, http.StatusBadRequest)
 			return
 		}
 
-		project, err := s.DB.CreateProject(r.Context(), input)
+		// default values
+		ext := false
+		if body.External != nil {
+			ext = *body.External
+		}
+		tags := body.Tags
+		if tags == nil {
+			tags = []string{}
+		}
+
+		params := db.CreateProjectParams{
+			Title:       body.Title,
+			Slug:        body.Slug,
+			Description: utils.ToNullString(body.Description),
+			RepoUrl:     utils.ToNullString(body.RepoUrl),
+			LiveUrl:     utils.ToNullString(body.LiveUrl),
+			Summary:     utils.ToNullString(body.Summary),
+			Tags:        tags,
+			Footer:      utils.ToNullString(body.Footer),
+			Href:        utils.ToNullString(body.Href),
+			External:    ext,
+			Color:       utils.ToNullString(body.Color),
+			Emoji:       utils.ToNullString(body.Emoji),
+			Content:     utils.ToNullString(body.Content),
+			Image:       utils.ToNullString(body.Image),
+			Embed:       utils.ToNullString(body.Embed),
+			UserID:      sql.NullInt32{},
+		}
+
+		project, err := s.DB.CreateProject(r.Context(), params)
 		if err != nil {
 			http.Error(w, `{"error":"Failed to create project"}`, http.StatusInternalServerError)
 			return
@@ -37,6 +84,11 @@ func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
 		if err != nil {
 			http.Error(w, `{"error":"Failed to fetch projects"}`, http.StatusInternalServerError)
 			return
+		}
+
+		// Ensure we return an empty array instead of null for zero projects
+		if projects == nil {
+			projects = []db.Project{}
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -68,14 +120,42 @@ func RegisterProjectRoutes(r *mux.Router, s *server.Server) {
 			return
 		}
 
-		var input db.UpdateProjectParams
-		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		var body projectPayload
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			http.Error(w, `{"error":"Invalid JSON"}`, http.StatusBadRequest)
 			return
 		}
 
-		input.ID = int32(id)
-		project, err := s.DB.UpdateProject(r.Context(), input)
+
+		// Defaults
+		ext := false
+		if body.External != nil {
+			ext = *body.External
+		}
+		tags := body.Tags
+		if tags == nil {
+			tags = []string{}
+		}
+
+		params := db.UpdateProjectParams{
+			ID:          int32(id),
+			Title:       body.Title,
+			Description: utils.ToNullString(body.Description),
+			RepoUrl:     utils.ToNullString(body.RepoUrl),
+			LiveUrl:     utils.ToNullString(body.LiveUrl),
+			Summary:     utils.ToNullString(body.Summary),
+			Tags:        tags,
+			Footer:      utils.ToNullString(body.Footer),
+			Href:        utils.ToNullString(body.Href),
+			External:    ext,
+			Color:       utils.ToNullString(body.Color),
+			Emoji:       utils.ToNullString(body.Emoji),
+			Content:     utils.ToNullString(body.Content),
+			Image:       utils.ToNullString(body.Image),
+			Embed:       utils.ToNullString(body.Embed),
+		}
+
+		project, err := s.DB.UpdateProject(r.Context(), params)
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Project not found"}`, http.StatusNotFound)
 			return

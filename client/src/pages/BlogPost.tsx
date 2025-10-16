@@ -36,8 +36,12 @@ const BlogPost = () => {
   }, [slug])
 
   return (
-    <main id="main" className="section fade-in">
-      <Suspense fallback={<div className="text-sm opacity-60">Loading post...</div>}>
+    <main id="main" className="section space-y-8">
+      <Suspense
+        fallback={
+          <div className="surface-card px-6 py-8 text-sm text-text-muted">Loading post...</div>
+        }
+      >
         <PostWrapper />
       </Suspense>
     </main>

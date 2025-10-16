@@ -1,74 +1,120 @@
+import { FLAVOR_META } from '@/context/ThemeContext'
 import { useTheme } from '@/hooks'
-import { ChevronDown, Moon, Palette, PaletteIcon, Sun, Zap } from 'lucide-react'
-import { useState } from 'react'
-
-const themes = [
-  { name: 'light', color: 'bg-white', icon: <Sun size={14} /> },
-  { name: 'dark', color: 'bg-black', icon: <Moon size={14} /> },
-  { name: 'dracula', color: 'bg-purple-800', icon: <PaletteIcon size={14} /> },
-  { name: 'mocha', color: 'bg-rose-800', icon: <PaletteIcon size={14} /> },
-]
+import { ChevronDown, Sparkles } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 const ThemeDropdown = () => {
-  const { theme, setTheme, glitchMode, toggleGlitch } = useTheme()
+  const { flavor, setFlavor, cycleFlavor, flavors, motion: motionPref, toggleMotion } = useTheme()
   const [open, setOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
-  const currentTheme = themes.find(t => t.name === theme)
+  const accent = FLAVOR_META[flavor].accent
+
+  useEffect(() => {
+    if (!open) return
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!containerRef.current?.contains(event.target as Node)) {
+        setOpen(false)
+      }
+    }
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => document.removeEventListener('pointerdown', handlePointerDown)
+  }, [open])
 
   return (
-    <div className="relative text-xs">
+    <div ref={containerRef} className="relative text-sm">
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="flex items-center gap-2 px-2 py-1 rounded hover:bg-neutral-800 transition"
+        className="group flex items-center gap-2 rounded-full border border-border/50 bg-surface/70 px-3 py-1.5 font-semibold uppercase tracking-[0.2em] text-xs text-text shadow-soft transition-all duration-300 hover:border-accent/60 hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="flex items-center gap-1">
-          {currentTheme?.icon || <Palette size={16} />}
-          <span className="capitalize">{theme}</span>
+        <span
+          className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded-full"
+          style={{
+            background: `linear-gradient(135deg, ${accent} 0%, var(--color-accent) 100%)`,
+          }}
+        >
+          <Sparkles size={12} className="text-crust drop-shadow" />
         </span>
-        <ChevronDown size={14} className={`transition ${open ? 'rotate-180' : ''}`} />
+        <span className="capitalize text-foreground/80">{FLAVOR_META[flavor].label}</span>
+        <ChevronDown
+          size={14}
+          className={`transition-transform duration-300 ${open ? '-rotate-180' : ''}`}
+        />
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-44 bg-neutral border border-accent text-white rounded shadow-lg z-50 p-2">
-          {themes.map(t => (
+        <div className="animate-pop-in absolute right-0 mt-3 w-60 overflow-hidden rounded-2xl border border-border/40 bg-surface-elevated/95 backdrop-blur-xl shadow-soft">
+          <div className="flex items-center justify-between px-4 py-3 text-[11px] uppercase tracking-[0.3em] text-text-muted/80">
+            <span>Catppuccin</span>
             <button
-              key={t.name}
               onClick={() => {
-                setTheme(t.name)
+                cycleFlavor()
                 setOpen(false)
               }}
-              className={`flex items-center justify-between w-full px-2 py-1 text-left rounded hover:bg-accent hover:text-black transition ${
-                theme === t.name ? 'bg-accent text-black' : ''
-              }`}
+              className="rounded-full border border-border/50 px-2 py-1 font-medium uppercase tracking-[0.2em] text-[10px] text-text-muted transition hover:border-accent/50 hover:text-accent"
             >
-              <div className="flex items-center gap-2">
-                <span className={`w-3 h-3 rounded-full ${t.color}`} />
-                {t.icon}
-                <span className="capitalize">{t.name}</span>
-              </div>
+              Shuffle
             </button>
-          ))}
+          </div>
 
-          <hr className="my-2 border-neutral-700" />
+          <ul className="flex flex-col gap-1 px-2 pb-2" role="listbox">
+            {flavors.map(option => {
+              const meta = FLAVOR_META[option]
+              const isActive = option === flavor
+              return (
+                <li key={option}>
+                  <button
+                    className={`group flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-all duration-200 ${
+                      isActive
+                        ? 'bg-accent/15 text-accent'
+                        : 'text-text-muted hover:bg-surface/90 hover:text-text'
+                    }`}
+                    onClick={() => {
+                      setFlavor(option)
+                      setOpen(false)
+                    }}
+                    role="option"
+                    aria-selected={isActive}
+                  >
+                    <span className="flex items-center gap-3">
+                      <span
+                        className="h-4 w-4 rounded-full shadow-inner"
+                        style={{
+                          background: `linear-gradient(135deg, ${meta.accent} 0%, var(--color-highlight) 100%)`,
+                        }}
+                      />
+                      <span className="capitalize font-medium">{meta.label}</span>
+                    </span>
+                    {isActive && (
+                      <span className="text-[10px] uppercase tracking-[0.3em]">Now</span>
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
 
-          <label
-            className="flex items-center justify-between w-full cursor-pointer px-2 text-xs hover:text-accent"
-            htmlFor="glitch-toggle"
-          >
-            <span className="flex items-center gap-2">
-              <Zap size={14} />
-              Glitch Mode
-            </span>
-            <input
-              id="glitch-toggle"
-              type="checkbox"
-              checked={glitchMode}
-              onChange={toggleGlitch}
-              className="accent-accent"
-            />
-          </label>
+          <div className="border-t border-border/40 bg-surface/70 px-4 py-3 text-xs text-text-muted">
+            <label className="flex cursor-pointer items-center justify-between gap-3">
+              <span className="font-medium uppercase tracking-[0.25em]">Reduce Motion</span>
+              <button
+                onClick={toggleMotion}
+                className={`relative h-6 w-11 rounded-full border border-border/60 transition-all duration-300 ${
+                  motionPref === 'reduced' ? 'bg-accent/30 border-accent/40' : 'bg-surface-strong'
+                }`}
+                aria-pressed={motionPref === 'reduced'}
+              >
+                <span
+                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-surface-elevated shadow-soft transition-all duration-300 ${
+                    motionPref === 'reduced' ? 'translate-x-5' : 'translate-x-0.5'
+                  }`}
+                />
+                <span className="sr-only">Toggle reduced motion</span>
+              </button>
+            </label>
+          </div>
         </div>
       )}
     </div>

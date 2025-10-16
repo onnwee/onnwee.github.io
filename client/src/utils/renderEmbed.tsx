@@ -1,12 +1,16 @@
+import type { ReactNode } from 'react'
 import { EmbedWrapper } from './embedWrappers'
 
 type EmbedProps = {
   url: string
   title?: string
-  glitchMode?: boolean
 }
 
-const baseClass = 'rounded w-full h-full'
+const baseClass = 'h-full w-full rounded-2xl border-0'
+
+const wrap = (content: ReactNode) => (
+  <div className="surface-card overflow-hidden px-4 py-4">{content}</div>
+)
 
 // Helper: Get emoji/logo for fallback
 const getPlatformMeta = (url: string) => {
@@ -21,33 +25,33 @@ const getPlatformMeta = (url: string) => {
 }
 
 // Fallback block for unsupported embeds
-const fallbackCard = (url: string, title?: string, glitchMode?: boolean) => {
+const fallbackCard = (url: string, title?: string) => {
   const { name, emoji } = getPlatformMeta(url)
   return (
-    <div
-      className={`p-4 text-center text-sm font-mono border rounded backdrop-blur-sm bg-white/5
-        ${glitchMode ? 'glitch-box' : 'clean-box'}`}
-    >
-      <div className="text-2xl mb-2">{emoji}</div>
-      <p className="mb-2">Unable to embed {name}</p>
+    <div className="flex flex-col items-center gap-3 rounded-2xl bg-surface/60 px-6 py-8 text-center text-sm text-text-muted">
+      <span className="text-3xl">{emoji}</span>
+      <p className="text-base font-medium text-text">Unable to embed {name}</p>
+      <p className="text-xs text-text-muted/80">
+        The service might require an authenticated session or does not allow embedding.
+      </p>
       <a
         href={url}
         target="_blank"
         rel="noopener noreferrer"
-        className="underline text-glitchBlue hover:text-accent"
+        className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-4 py-2 text-xs font-semibold text-accent transition-colors duration-300 hover:bg-accent/25"
       >
-        Open {title || name} in a new tab →
+        Open {title || name} ↗
       </a>
     </div>
   )
 }
 
 // Main embed renderer
-export const renderEmbed = ({ url, title, glitchMode }: EmbedProps) => {
-  const embedClass = `${baseClass} ${glitchMode ? 'glitch-box' : 'clean-box'}`
+export const renderEmbed = ({ url, title }: EmbedProps) => {
+  const embedClass = `${baseClass} bg-surface-strong/60`
 
   if (url.includes('youtube.com') || url.includes('youtu.be')) {
-    return (
+    return wrap(
       <EmbedWrapper>
         <iframe
           src={url}
@@ -56,13 +60,13 @@ export const renderEmbed = ({ url, title, glitchMode }: EmbedProps) => {
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
-      </EmbedWrapper>
+      </EmbedWrapper>,
     )
   }
 
   if (url.includes('spotify.com')) {
-    return (
-      <EmbedWrapper heightClass="h-20 mb-6">
+    return wrap(
+      <EmbedWrapper heightClass="h-20">
         <iframe
           src={url}
           title={title || 'Spotify Embed'}
@@ -70,13 +74,13 @@ export const renderEmbed = ({ url, title, glitchMode }: EmbedProps) => {
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           allowFullScreen
         />
-      </EmbedWrapper>
+      </EmbedWrapper>,
     )
   }
 
   if (url.includes('soundcloud.com')) {
-    return (
-      <EmbedWrapper heightClass="h-[166px] mb-6">
+    return wrap(
+      <EmbedWrapper heightClass="h-[166px]">
         <iframe
           width="100%"
           height="166"
@@ -87,32 +91,32 @@ export const renderEmbed = ({ url, title, glitchMode }: EmbedProps) => {
           title={title || 'SoundCloud Embed'}
           className={embedClass}
         />
-      </EmbedWrapper>
+      </EmbedWrapper>,
     )
   }
 
   if (url.includes('twitch.tv')) {
     const match = url.match(/twitch\.tv\/([a-zA-Z0-9_]+)/)
     const channel = match?.[1]
-    return channel ? (
-      <EmbedWrapper>
-        <iframe
-          src={`https://player.twitch.tv/?channel=${channel}&parent=localhost`}
-          allowFullScreen
-          className={embedClass}
-          title={`${title || 'Twitch Embed'} (${channel})`}
-        />
-      </EmbedWrapper>
-    ) : (
-      fallbackCard(url, title, glitchMode)
-    )
+    return channel
+      ? wrap(
+          <EmbedWrapper>
+            <iframe
+              src={`https://player.twitch.tv/?channel=${channel}&parent=localhost`}
+              allowFullScreen
+              className={embedClass}
+              title={`${title || 'Twitch Embed'} (${channel})`}
+            />
+          </EmbedWrapper>,
+        )
+      : wrap(fallbackCard(url, title))
   }
 
   if (url.includes('bandcamp.com')) {
-    return (
+    return wrap(
       <EmbedWrapper>
         <iframe title={title || 'Bandcamp Embed'} className={embedClass} src={url} seamless />
-      </EmbedWrapper>
+      </EmbedWrapper>,
     )
   }
 
@@ -123,9 +127,9 @@ export const renderEmbed = ({ url, title, glitchMode }: EmbedProps) => {
     url.includes('instagram.com') ||
     url.includes('tiktok.com')
   ) {
-    return fallbackCard(url, title, glitchMode)
+    return wrap(fallbackCard(url, title))
   }
 
   // Default fallback
-  return fallbackCard(url, title, glitchMode)
+  return wrap(fallbackCard(url, title))
 }
