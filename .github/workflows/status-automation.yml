@@ -1,0 +1,70 @@
+name: Status Labels Automation
+
+on:
+    issues:
+        types: [opened, edited, labeled, unlabeled, closed, reopened]
+    pull_request:
+        types:
+            [
+                opened,
+                edited,
+                labeled,
+                unlabeled,
+                closed,
+                reopened,
+                ready_for_review,
+                review_requested,
+            ]
+
+permissions:
+    contents: read
+    issues: write
+    pull-requests: write
+
+jobs:
+    sync-status:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Set default status to backlog on new issues
+              if: github.event_name == 'issues' && github.event.action == 'opened'
+              uses: actions-ecosystem/action-add-labels@v1
+              with:
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
+                  labels: |
+                      status: backlog
+
+            - name: Move PR to in progress when opened or ready
+              if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'review_requested')
+              uses: actions-ecosystem/action-add-labels@v1
+              with:
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
+                  labels: |
+                      status: in progress
+
+            - name: Remove conflicting status labels when setting in progress
+              if: github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'ready_for_review' || github.event.action == 'review_requested')
+              uses: actions-ecosystem/action-remove-labels@v1
+              with:
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
+                  labels: |
+                      status: backlog
+                      status: review
+                      status: done
+
+            - name: Mark PR as done when closed and merged
+              if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+              uses: actions-ecosystem/action-add-labels@v1
+              with:
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
+                  labels: |
+                      status: done
+
+            - name: Remove conflicting status labels when setting done
+              if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+              uses: actions-ecosystem/action-remove-labels@v1
+              with:
+                  github_token: ${{ secrets.PROJECT_TOKEN }}
+                  labels: |
+                      status: backlog
+                      status: in progress
+                      status: review

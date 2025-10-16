@@ -23,6 +23,7 @@ Thumbs.db
 .idea/
 node_modules/
 .env*
+!.env.example
 *.env
 
 # ========================

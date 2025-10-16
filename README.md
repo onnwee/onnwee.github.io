@@ -83,11 +83,13 @@ Visit `http://localhost:8000/users` to verify the API is running.
 ```bash
 cd client
 npm install          # install dependencies
+cp .env.example .env # configure environment variables (optional)
 npm run dev          # start Vite dev server with hot reload
 npm run build        # production build (emits to dist/)
 npm run preview      # serve built assets locally
 ```
 
+- **Environment Setup (Optional):** Copy `client/.env.example` to `client/.env` to configure optional environment variables like `VITE_API_BASE_URL`, `VITE_ADMIN_TOKEN`, or feature flags. All Vite environment variables must be prefixed with `VITE_` to be exposed to the browser.
 - Theme + glitch controls live in `src/context/ThemeContext.tsx`; wrap new UI in `<ThemeProvider>` and use the `useTheme()` hook.
 - The blog uses `vite-plugin-mdx` plus a frontmatter transformer (`vite.config.ts`). Every MDX file under `src/blog/` needs at least `title`, `tags`, and optional `summary/date` frontmatter to appear in the index.
 - `LazyGrid` + `useResponsiveItemsPerPage` coordinate virtualized grids. Prefer these utilities for paginated/animated lists (projects, blog index, future galleries).
@@ -100,32 +102,19 @@ npm run preview      # serve built assets locally
 ```bash
 cd backend
 go mod tidy                 # sync go.mod
+cp .env.example .env        # configure environment variables (edit DATABASE_URL)
 make up                     # postgres + prometheus + grafana via docker-compose
 sqlc generate               # regenerate internal/db after editing SQL
-go run cmd/server/main.go   # run API locally (expects DATABASE_URL)
+go run cmd/server/main.go   # run API locally (loads .env automatically)
 make seed                   # populate fake data via gofakeit (respects SEED_* envs)
 make reset-db               # drop/recreate tables using scripts/reset_db.sh
 make logs                   # tail Docker service logs
 make down                   # stop Docker services
 ```
 
-### Working with the Database
-
-**Schema Changes:**
-1. Edit `internal/schema.sql`
-2. Run `make reset-db` to apply changes
-3. Run `sqlc generate` to regenerate Go code
-4. Run `make seed` to populate with fresh data
-
-**Adding Queries:**
-1. Write SQL in `internal/queries/*.sql` (e.g., `users.sql`)
-2. Use sqlc annotations: `-- name: GetUserByID :one`
-3. Run `sqlc generate` to create Go methods
-4. Never manually edit files in `internal/db/`
-
-**Database Configuration:**
+- **Environment Setup:** Copy `backend/.env.example` to `backend/.env` and configure your `DATABASE_URL`. See the backend README for all available environment variables.
 - Define schema changes in `internal/schema.sql` and queries in `internal/queries/*.sql`. Regenerate Go code with `sqlc generate`; never hand-edit `internal/db`.
-- `cmd/server/main.go` loads `.env` automatically, builds the mux router, and exposes Prometheus metrics alongside the API.
+- `cmd/server/main.go` loads `.env` automatically via `godotenv`, builds the mux router, and exposes Prometheus metrics alongside the API.
 - Middleware instrumentation plus `otelhttp` wrappers ensure request metrics surface in Prometheus/Grafana.
 - Seed script (`cmd/seed/seed.go`) respects env overrides: `SEED_NUM_USERS`, `SEED_NUM_POSTS`, `SEED_DELAY`, etc. The Docker compose service seeds large datasets by default—tweak envs to keep local inserts manageable.
 
@@ -135,21 +124,21 @@ make down                   # stop Docker services
 
 ```
 client/
-	src/
-		components/        // shared UI (ErrorBoundary, LazyGrid, embeds, nav)
-		context/           // ThemeProvider + glitch toggles
-		data/              // static project metadata
-		hooks/             // responsive + intersection observer helpers
-		pages/             // route-level components
-		blog/              // MDX posts with frontmatter
+ src/
+  components/        // shared UI (ErrorBoundary, LazyGrid, embeds, nav)
+  context/           // ThemeProvider + glitch toggles
+  data/              // static project metadata
+  hooks/             // responsive + intersection observer helpers
+  pages/             // route-level components
+  blog/              // MDX posts with frontmatter
 backend/
-	cmd/server/          // API entrypoint exposing /metrics + mux router
-	cmd/seed/            // gofakeit-powered data seeding
-	internal/api/        // handler registrations per resource
-	internal/db/         // sqlc generated queries/models
-	internal/queries/    // SQL source of truth
-	pkg/middleware/      // logging, recovery, cors, rate limiting, real IP
-	scripts/reset_db.sh  // docker exec helper for wiping local DB
+ cmd/server/          // API entrypoint exposing /metrics + mux router
+ cmd/seed/            // gofakeit-powered data seeding
+ internal/api/        // handler registrations per resource
+ internal/db/         // sqlc generated queries/models
+ internal/queries/    // SQL source of truth
+ pkg/middleware/      // logging, recovery, cors, rate limiting, real IP
+ scripts/reset_db.sh  // docker exec helper for wiping local DB
 ```
 
 ---
@@ -159,6 +148,32 @@ backend/
 - Launch `make up` to spin up Postgres + Prometheus + Grafana. Grafana listens on `localhost:3000` (`admin`/`admin`).
 - API metrics live at `/metrics` and are scraped by Prometheus (`prometheus.yml` targets `go_app:8000`).
 - Client-side errors in development surface through `ErrorOverlay` polling the `errorMonitor` queue. Call `errorMonitor.logReactError` inside new `ErrorBoundary` wrappers when adding risky UI.
+
+---
+
+## Security & Secrets Management
+
+### Environment Files
+Both `client/` and `backend/` use environment files for configuration:
+
+- **Example files** (`.env.example`) are committed to the repository and contain all available configuration options with safe default values
+- **Actual files** (`.env`, `.env.local`, `.env.*`) are ignored by git and should **never** be committed
+- Copy the example file and update with your actual credentials: `cp .env.example .env`
+
+### Best Practices
+- ✅ **DO** use `.env.example` files to document required configuration
+- ✅ **DO** use strong, unique passwords and tokens in production
+- ✅ **DO** rotate credentials regularly
+- ❌ **DON'T** commit `.env` files or any files containing secrets
+- ❌ **DON'T** hardcode credentials in source code
+- ❌ **DON'T** share `.env` files via insecure channels (email, chat, etc.)
+
+### Vite Environment Variables
+Vite exposes environment variables prefixed with `VITE_` to the client bundle. Be careful not to expose sensitive credentials:
+- ✅ `VITE_API_BASE_URL` - safe to expose (public API endpoint)
+- ❌ `VITE_ADMIN_SECRET_KEY` - would be exposed in browser, insecure
+
+For admin operations, use backend authentication instead of client-side tokens.
 
 ---
 
