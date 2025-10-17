@@ -100,6 +100,6 @@ func RegisterAnalyticsRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(stats)
+		_ = json.NewEncoder(w).Encode(stats)
 	}).Methods("GET")
 }

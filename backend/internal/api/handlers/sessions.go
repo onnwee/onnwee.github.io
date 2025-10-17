@@ -45,7 +45,7 @@ func RegisterSessionRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(session)
+		_ = json.NewEncoder(w).Encode(session)
 	}).Methods("POST")
 
 	// GET /sessions/{id} - get session by ID
@@ -65,7 +65,7 @@ func RegisterSessionRoutes(r *mux.Router, s *server.Server) {
 			http.Error(w, `{"error":"Failed to fetch session"}`, http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(w).Encode(session)
+		_ = json.NewEncoder(w).Encode(session)
 	}).Methods("GET")
 
 	// DELETE /sessions/{id} - delete session by ID
@@ -98,7 +98,7 @@ func RegisterSessionRoutes(r *mux.Router, s *server.Server) {
 			http.Error(w, `{"error":"Failed to fetch sessions"}`, http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(w).Encode(sessions)
+		_ = json.NewEncoder(w).Encode(sessions)
 	}).Methods("GET")
 
 	// PATCH /sessions/{id}/expire - expire session by ID

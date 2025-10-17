@@ -35,7 +35,7 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(posts)
+		_ = json.NewEncoder(w).Encode(posts)
 	}).Methods("GET")
 
 	// GET /posts/{slug} - Get post by slug
@@ -50,7 +50,7 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(post)
+		_ = json.NewEncoder(w).Encode(post)
 	}).Methods("GET")
 
 	// POST /posts - Create a new post
@@ -67,7 +67,7 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(post)
+		_ = json.NewEncoder(w).Encode(post)
 	}).Methods("POST")
 
 	// PUT /posts/{id} - Update an existing post
@@ -94,7 +94,7 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(post)
+		_ = json.NewEncoder(w).Encode(post)
 	}).Methods("PUT")
 
 	// DELETE /posts/{id} - Delete a post

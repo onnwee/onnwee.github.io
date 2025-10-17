@@ -98,7 +98,7 @@ func RegisterAuthRoutes(r *mux.Router, s *server.Server) {
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success":  true,
 			"user_id":  user.ID,
 			"username": user.Username,
@@ -138,7 +138,7 @@ func RegisterAuthRoutes(r *mux.Router, s *server.Server) {
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
 			"message": "Logged out successfully",
 		})

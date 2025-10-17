@@ -39,7 +39,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(user)
+		_ = json.NewEncoder(w).Encode(user)
 	}).Methods("POST")
 
 	// GET /users - List users with pagination
@@ -72,7 +72,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(users)
+		_ = json.NewEncoder(w).Encode(users)
 	}).Methods("GET")
 
 	// GET /users/{id} - Get user by ID
@@ -95,7 +95,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(user)
+		_ = json.NewEncoder(w).Encode(user)
 	}).Methods("GET")
 
 	// DELETE /users/{id} - Delete a user
@@ -155,7 +155,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(user)
+		_ = json.NewEncoder(w).Encode(user)
 	}).Methods("PATCH")
 
 	// GET /users/available?username=...
@@ -170,7 +170,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		available := err == sql.ErrNoRows
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]bool{
+		_ = json.NewEncoder(w).Encode(map[string]bool{
 			"available": available,
 		})
 	}).Methods("GET")

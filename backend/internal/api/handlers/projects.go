@@ -99,7 +99,7 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}).Methods("GET")
 
 	// GET /projects/{slug} - Get project by slug
@@ -115,7 +115,7 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(toResp(project))
+		_ = json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("GET")
 }
 
@@ -247,7 +247,7 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(toResp(project))
+		_ = json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("POST")
 
 	// PUT /admin/projects/{id} - Update a project
@@ -304,7 +304,7 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(toResp(project))
+		_ = json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("PUT")
 
 	// DELETE /admin/projects/{id} - Delete a project

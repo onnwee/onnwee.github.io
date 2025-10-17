@@ -2,8 +2,6 @@ run:
   timeout: 5m
   tests: true
   modules-download-mode: readonly
-  skip-dirs:
-    - cmd/seed
 
 linters:
   enable:
@@ -24,3 +22,5 @@ linters:
 issues:
   max-issues-per-linter: 0
   max-same-issues: 0
+  exclude-dirs:
+    - cmd/seed

@@ -47,7 +47,7 @@ func RegisterLogRoutes(r *mux.Router, s *server.Server) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(log)
+		_ = json.NewEncoder(w).Encode(log)
 	}).Methods("POST")
 
 	// GET /logs - List logs with pagination
@@ -79,7 +79,7 @@ func RegisterLogRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(logs)
+		_ = json.NewEncoder(w).Encode(logs)
 	}).Methods("GET")
 
 	// GET /logs/{id} - Get log by ID
@@ -102,7 +102,7 @@ func RegisterLogRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(log)
+		_ = json.NewEncoder(w).Encode(log)
 	}).Methods("GET")
 
 	// DELETE /logs/{id} - Delete a log

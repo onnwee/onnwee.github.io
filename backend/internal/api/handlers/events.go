@@ -98,6 +98,6 @@ func RegisterEventRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(events)
+		_ = json.NewEncoder(w).Encode(events)
 	}).Methods("GET")
 }

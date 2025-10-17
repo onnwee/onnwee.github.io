@@ -8,8 +8,8 @@ import (
 )
 
 func RegisterHealthRoutes(r *mux.Router, _ *server.Server) {
-	r.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		_, _ = w.Write([]byte("ok"))
 	}).Methods("GET")
 }
