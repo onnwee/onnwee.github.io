@@ -3,9 +3,11 @@ set -e
 
 echo "🔄 Resetting database using migrations..."
 
-# Load environment variables
+# Load environment variables safely
 if [ -f .env ]; then
-    export $(grep -v '^#' .env | xargs)
+    set -a
+    source .env
+    set +a
 fi
 
 # Check if DATABASE_URL is set
@@ -15,7 +17,10 @@ if [ -z "$DATABASE_URL" ]; then
 fi
 
 echo "⬇️  Rolling back all migrations..."
-migrate -path migrations -database "$DATABASE_URL" down -all 2>&1 | grep -v "Are you sure" || true
+# Use -all flag which doesn't prompt for confirmation
+if ! migrate -path migrations -database "$DATABASE_URL" down -all; then
+    echo "⚠️  Warning: Migration rollback had issues (this is normal if no migrations exist)"
+fi
 
 echo "⬆️  Applying all migrations..."
 migrate -path migrations -database "$DATABASE_URL" up
