@@ -12,11 +12,11 @@ import (
 
 // AnalyticsStats represents aggregate analytics data
 type AnalyticsStats struct {
-	TotalPageViews int64                 `json:"total_page_views"`
-	TotalEvents    int64                 `json:"total_events"`
-	PageViewsByPath []PathViewCount      `json:"page_views_by_path"`
-	EventsByName    []EventNameCount     `json:"events_by_name"`
-	Period          string               `json:"period"`
+	TotalPageViews  int64            `json:"total_page_views"`
+	TotalEvents     int64            `json:"total_events"`
+	PageViewsByPath []PathViewCount  `json:"page_views_by_path"`
+	EventsByName    []EventNameCount `json:"events_by_name"`
+	Period          string           `json:"period"`
 }
 
 type PathViewCount struct {

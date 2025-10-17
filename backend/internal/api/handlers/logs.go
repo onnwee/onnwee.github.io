@@ -29,7 +29,7 @@ func RegisterLogRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		// Extract IP if not provided
-		if !input.IpAddress.Valid || input.IpAddress.String == ""  {
+		if !input.IpAddress.Valid || input.IpAddress.String == "" {
 			ip := utils.GetIP(r)
 			input.IpAddress = utils.ToNullString(&ip)
 		}

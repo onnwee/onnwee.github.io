@@ -16,24 +16,24 @@ import (
 // RegisterPublicProjectRoutes registers read-only project routes
 func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 	type projectResponse struct {
-		ID          int32     `json:"id"`
-		Title       string    `json:"title"`
-		Slug        string    `json:"slug"`
-		Description *string   `json:"description"`
-		RepoUrl     *string   `json:"repo_url"`
-		LiveUrl     *string   `json:"live_url"`
-		Summary     *string   `json:"summary"`
-		Tags        []string  `json:"tags"`
-		Footer      *string   `json:"footer"`
-		Href        *string   `json:"href"`
-		External    bool      `json:"external"`
-		Color       *string   `json:"color"`
-		Emoji       *string   `json:"emoji"`
-		Content     *string   `json:"content"`
-		Image       *string   `json:"image"`
-		Embed       *string   `json:"embed"`
-		CreatedAt   string    `json:"created_at"`
-		UpdatedAt   string    `json:"updated_at"`
+		ID          int32    `json:"id"`
+		Title       string   `json:"title"`
+		Slug        string   `json:"slug"`
+		Description *string  `json:"description"`
+		RepoUrl     *string  `json:"repo_url"`
+		LiveUrl     *string  `json:"live_url"`
+		Summary     *string  `json:"summary"`
+		Tags        []string `json:"tags"`
+		Footer      *string  `json:"footer"`
+		Href        *string  `json:"href"`
+		External    bool     `json:"external"`
+		Color       *string  `json:"color"`
+		Emoji       *string  `json:"emoji"`
+		Content     *string  `json:"content"`
+		Image       *string  `json:"image"`
+		Embed       *string  `json:"embed"`
+		CreatedAt   string   `json:"created_at"`
+		UpdatedAt   string   `json:"updated_at"`
 	}
 
 	toPtr := func(ns sql.NullString) *string {
@@ -140,24 +140,24 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 // RegisterAdminProjectRoutes registers admin-only (CRUD) project routes
 func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 	type projectResponse struct {
-		ID          int32     `json:"id"`
-		Title       string    `json:"title"`
-		Slug        string    `json:"slug"`
-		Description *string   `json:"description"`
-		RepoUrl     *string   `json:"repo_url"`
-		LiveUrl     *string   `json:"live_url"`
-		Summary     *string   `json:"summary"`
-		Tags        []string  `json:"tags"`
-		Footer      *string   `json:"footer"`
-		Href        *string   `json:"href"`
-		External    bool      `json:"external"`
-		Color       *string   `json:"color"`
-		Emoji       *string   `json:"emoji"`
-		Content     *string   `json:"content"`
-		Image       *string   `json:"image"`
-		Embed       *string   `json:"embed"`
-		CreatedAt   string    `json:"created_at"`
-		UpdatedAt   string    `json:"updated_at"`
+		ID          int32    `json:"id"`
+		Title       string   `json:"title"`
+		Slug        string   `json:"slug"`
+		Description *string  `json:"description"`
+		RepoUrl     *string  `json:"repo_url"`
+		LiveUrl     *string  `json:"live_url"`
+		Summary     *string  `json:"summary"`
+		Tags        []string `json:"tags"`
+		Footer      *string  `json:"footer"`
+		Href        *string  `json:"href"`
+		External    bool     `json:"external"`
+		Color       *string  `json:"color"`
+		Emoji       *string  `json:"emoji"`
+		Content     *string  `json:"content"`
+		Image       *string  `json:"image"`
+		Embed       *string  `json:"embed"`
+		CreatedAt   string   `json:"created_at"`
+		UpdatedAt   string   `json:"updated_at"`
 	}
 
 	toPtr := func(ns sql.NullString) *string {
@@ -282,7 +282,6 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 			http.Error(w, `{"error":"Invalid JSON"}`, http.StatusBadRequest)
 			return
 		}
-
 
 		// Defaults
 		ext := false

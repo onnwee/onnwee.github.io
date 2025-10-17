@@ -31,13 +31,13 @@ func recordPageView(r *http.Request, queries *db.Queries) {
 	path := r.URL.Path
 	referrer := r.Referer()
 	userAgent := r.UserAgent()
-	
+
 	// Get real IP from middleware-set header
 	ip := r.Header.Get("X-Client-IP")
 	if ip == "" {
 		ip = utils.GetIP(r)
 	}
-	
+
 	// Anonymize IP for privacy
 	anonymizedIP := utils.AnonymizeIP(ip)
 
