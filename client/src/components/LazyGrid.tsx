@@ -28,16 +28,22 @@ export default function LazyGrid<T>({
 }: LazyGridProps<T>) {
   const [visibleCount, setVisibleCount] = useState(itemsPerPage)
   const [isLoading, setIsLoading] = useState(false)
+  const [lastAnnouncedCount, setLastAnnouncedCount] = useState(0)
   const [loaderRef, isVisible] = useOnScreen<HTMLDivElement>('-20px')
 
   const loadMore = useCallback(() => {
     if (visibleCount >= items.length) return
     setIsLoading(true)
-    // Simulate brief loading delay to show skeletons
+    // Brief delay to show skeletons during content windowing
+    // In production with async data, this would be replaced by actual fetch time
     setTimeout(() => {
-      setVisibleCount(prev => Math.min(prev + itemsPerPage, items.length))
+      setVisibleCount(prev => {
+        const newCount = Math.min(prev + itemsPerPage, items.length)
+        setLastAnnouncedCount(newCount)
+        return newCount
+      })
       setIsLoading(false)
-    }, 400)
+    }, 150)
   }, [items.length, itemsPerPage, visibleCount])
 
   useEffect(() => {
@@ -54,7 +60,8 @@ export default function LazyGrid<T>({
       {/* ARIA live region for accessibility announcements */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {isLoading && 'Loading more items...'}
-        {!isLoading && visibleCount > itemsPerPage && `Loaded ${visibleCount} of ${items.length} items`}
+        {!isLoading && lastAnnouncedCount > itemsPerPage && lastAnnouncedCount === visibleCount && 
+          `Loaded ${visibleCount} of ${items.length} items`}
       </div>
 
       <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 ${className}`}>
