@@ -51,6 +51,19 @@ func (q *Queries) CreatePageView(ctx context.Context, arg CreatePageViewParams) 
 	return err
 }
 
+const getTotalViewsLastNDays = `-- name: GetTotalViewsLastNDays :one
+SELECT COUNT(*) 
+FROM page_views
+WHERE viewed_at >= NOW() - ($1 || ' days')::INTERVAL
+`
+
+func (q *Queries) GetTotalViewsLastNDays(ctx context.Context, dollar_1 sql.NullString) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getTotalViewsLastNDays, dollar_1)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getViewsByPath = `-- name: GetViewsByPath :many
 SELECT id, path, referrer, user_agent, session_id, ip_address, viewed_at, user_id FROM page_views
 WHERE path = $1
@@ -83,6 +96,44 @@ func (q *Queries) GetViewsByPath(ctx context.Context, arg GetViewsByPathParams) 
 			&i.ViewedAt,
 			&i.UserID,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getViewsCountByPathLastNDays = `-- name: GetViewsCountByPathLastNDays :many
+SELECT 
+  path,
+  COUNT(*) as view_count
+FROM page_views
+WHERE viewed_at >= NOW() - ($1 || ' days')::INTERVAL
+GROUP BY path
+ORDER BY view_count DESC
+`
+
+type GetViewsCountByPathLastNDaysRow struct {
+	Path      string `json:"path"`
+	ViewCount int64  `json:"view_count"`
+}
+
+func (q *Queries) GetViewsCountByPathLastNDays(ctx context.Context, dollar_1 sql.NullString) ([]GetViewsCountByPathLastNDaysRow, error) {
+	rows, err := q.db.QueryContext(ctx, getViewsCountByPathLastNDays, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetViewsCountByPathLastNDaysRow
+	for rows.Next() {
+		var i GetViewsCountByPathLastNDaysRow
+		if err := rows.Scan(&i.Path, &i.ViewCount); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

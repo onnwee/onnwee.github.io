@@ -8,7 +8,7 @@ require (
 	github.com/lib/pq v1.10.9
 )
 
-require golang.org/x/crypto v0.43.0 // indirect
+require golang.org/x/crypto v0.43.0
 
 require (
 	github.com/beorn7/perks v1.0.1 // indirect

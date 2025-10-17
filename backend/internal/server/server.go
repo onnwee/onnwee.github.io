@@ -12,14 +12,14 @@ type Server struct {
 	DB *db.Queries
 }
 
-  func InitDB() (*db.Queries, error) {
+func InitDB() (*db.Queries, error) {
 	conn, err := sql.Open("postgres", os.Getenv("DATABASE_URL"))
 	if err != nil {
-	  return nil, err
+		return nil, err
 	}
 	return db.New(conn), nil
-  }
+}
 
-  func NewServer(queries *db.Queries) *Server {
+func NewServer(queries *db.Queries) *Server {
 	return &Server{DB: queries}
 }

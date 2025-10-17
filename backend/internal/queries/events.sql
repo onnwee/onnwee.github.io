@@ -20,3 +20,18 @@ WHERE
   AND (session_id = $2 OR $2 IS NULL)
 ORDER BY viewed_at DESC
 LIMIT $3 OFFSET $4;
+
+-- name: GetEventsCountByNameLastNDays :many
+SELECT 
+  event_name,
+  COUNT(*) as event_count
+FROM events
+WHERE viewed_at >= NOW() - ($1 || ' days')::INTERVAL
+  AND event_name IS NOT NULL
+GROUP BY event_name
+ORDER BY event_count DESC;
+
+-- name: GetTotalEventsLastNDays :one
+SELECT COUNT(*) 
+FROM events
+WHERE viewed_at >= NOW() - ($1 || ' days')::INTERVAL;
