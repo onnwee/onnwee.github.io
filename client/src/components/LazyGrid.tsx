@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 
 type LazyGridProps<T> = {
   items: T[]
+  // eslint-disable-next-line no-unused-vars
   renderItem: (item: T, index: number) => React.ReactNode
   itemsPerPage?: number
   className?: string

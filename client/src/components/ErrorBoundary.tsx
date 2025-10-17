@@ -9,6 +9,7 @@ interface ErrorBoundaryState {
 interface ErrorBoundaryProps {
   children: React.ReactNode
   fallback?: React.ComponentType<{ error?: Error; reset: () => void }>
+  // eslint-disable-next-line no-unused-vars
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void
 }
 

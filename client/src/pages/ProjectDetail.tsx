@@ -88,7 +88,7 @@ const useProjectData = (slug: string | undefined) => {
 const ProjectError = ({
   error,
   errorType,
-  slug,
+  slug: _slug, // eslint-disable-line no-unused-vars
 }: {
   error: string
   errorType: string
