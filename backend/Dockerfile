@@ -1,3 +1,6 @@
+# Multi-stage build: Get migrate from official image
+FROM migrate/migrate:v4.19.0 AS migrate
+
 # Use latest Go version from official image
 FROM golang:latest
 
@@ -7,13 +10,11 @@ ENV GO111MODULE=on
 # Set working directory
 WORKDIR /app
 
-# Install dependencies (Git, curl for migrate, postgresql-client)
-RUN apt-get update && apt-get install -y git curl postgresql-client
+# Install dependencies (Git, postgresql-client)
+RUN apt-get update && apt-get install -y git postgresql-client && rm -rf /var/lib/apt/lists/*
 
-# Install golang-migrate
-RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.19.0/migrate.linux-amd64.tar.gz | tar xvz && \
-    mv migrate /usr/local/bin/migrate && \
-    chmod +x /usr/local/bin/migrate
+# Copy migrate binary from official image
+COPY --from=migrate /usr/local/bin/migrate /usr/local/bin/migrate
 
 # Copy go.mod and go.sum first for layer caching
 COPY go.mod go.sum ./
