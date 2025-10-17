@@ -5,15 +5,22 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
+	"github.com/onnwee/onnwee.github.io/backend/internal/metrics"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
+	"go.opentelemetry.io/otel"
 )
 
 func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 	// GET /posts - List published posts with pagination
 	r.HandleFunc("/posts", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("posts-handler")
+		ctx, span := tracer.Start(r.Context(), "ListPosts")
+		defer span.End()
+
 		query := r.URL.Query()
 		limit := int32(10) // default
 		if limitStr := query.Get("limit"); limitStr != "" {
@@ -29,7 +36,11 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 			}
 		}
 		params := db.ListPostsParams{Limit: limit, Offset: offset}
-		posts, err := s.DB.ListPosts(r.Context(), params)
+
+		start := time.Now()
+		posts, err := s.DB.ListPosts(ctx, params)
+		metrics.ObserveDBQueryDuration("list_posts", time.Since(start).Seconds())
+
 		if err != nil {
 			http.Error(w, `{"error":"Failed to list posts"}`, http.StatusInternalServerError)
 			return
@@ -40,8 +51,16 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 
 	// GET /posts/{slug} - Get post by slug
 	r.HandleFunc("/posts/{slug}", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("posts-handler")
+		ctx, span := tracer.Start(r.Context(), "GetPostBySlug")
+		defer span.End()
+
 		slug := mux.Vars(r)["slug"]
-		post, err := s.DB.GetPostBySlug(r.Context(), slug)
+
+		start := time.Now()
+		post, err := s.DB.GetPostBySlug(ctx, slug)
+		metrics.ObserveDBQueryDuration("get_post_by_slug", time.Since(start).Seconds())
+
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Post not found"}`, http.StatusNotFound)
 			return
@@ -55,12 +74,20 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 
 	// POST /posts - Create a new post
 	r.HandleFunc("/posts", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("posts-handler")
+		ctx, span := tracer.Start(r.Context(), "CreatePost")
+		defer span.End()
+
 		var input db.CreatePostParams
 		if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
 			http.Error(w, `{"error":"Invalid JSON"}`, http.StatusBadRequest)
 			return
 		}
-		post, err := s.DB.CreatePost(r.Context(), input)
+
+		start := time.Now()
+		post, err := s.DB.CreatePost(ctx, input)
+		metrics.ObserveDBQueryDuration("create_post", time.Since(start).Seconds())
+
 		if err != nil {
 			http.Error(w, `{"error":"Failed to create post"}`, http.StatusInternalServerError)
 			return
@@ -72,6 +99,10 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 
 	// PUT /posts/{id} - Update an existing post
 	r.HandleFunc("/posts/{id}", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("posts-handler")
+		ctx, span := tracer.Start(r.Context(), "UpdatePost")
+		defer span.End()
+
 		idStr := mux.Vars(r)["id"]
 		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
@@ -85,7 +116,11 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 			return
 		}
 		input.ID = id
-		post, err := s.DB.UpdatePost(r.Context(), input)
+
+		start := time.Now()
+		post, err := s.DB.UpdatePost(ctx, input)
+		metrics.ObserveDBQueryDuration("update_post", time.Since(start).Seconds())
+
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Post not found"}`, http.StatusNotFound)
 			return
@@ -99,6 +134,10 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 
 	// DELETE /posts/{id} - Delete a post
 	r.HandleFunc("/posts/{id}", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("posts-handler")
+		ctx, span := tracer.Start(r.Context(), "DeletePost")
+		defer span.End()
+
 		idStr := mux.Vars(r)["id"]
 		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
@@ -106,7 +145,11 @@ func RegisterPostRoutes(r *mux.Router, s *server.Server) {
 			return
 		}
 		id := int32(id64)
-		err = s.DB.DeletePost(r.Context(), id)
+
+		start := time.Now()
+		err = s.DB.DeletePost(ctx, id)
+		metrics.ObserveDBQueryDuration("delete_post", time.Since(start).Seconds())
+
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Post not found"}`, http.StatusNotFound)
 			return
