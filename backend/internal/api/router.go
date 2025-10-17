@@ -17,7 +17,7 @@ func NewRouter(queries *db.Queries) http.Handler {
 	s := server.NewServer(queries)
 
 	r := mux.NewRouter()
-	
+
 	// Public routes
 	handlers.RegisterLogRoutes(r, s)
 	handlers.RegisterEventRoutes(r, s)
@@ -25,13 +25,13 @@ func NewRouter(queries *db.Queries) http.Handler {
 	handlers.RegisterHealthRoutes(r, s)
 	handlers.RegisterPostRoutes(r, s)
 	handlers.RegisterUserRoutes(r, s)
-	
+
 	// Auth routes (rate-limited by default middleware)
 	handlers.RegisterAuthRoutes(r, s)
-	
+
 	// Public project routes (GET only)
 	handlers.RegisterPublicProjectRoutes(r, s)
-	
+
 	// Admin routes - protected by auth middleware
 	// These are mounted under /admin prefix
 	adminRouter := r.PathPrefix("/admin").Subrouter()
