@@ -14,7 +14,7 @@ const Projects = () => {
   const [selectedTags, setSelectedTags] = useUrlArrayState('tags')
   const [query, setQuery] = useUrlState('query', '')
   
-  // Local state for immediate search input feedback
+  // Local state for immediate search input feedback (initialized from URL)
   const [searchInput, setSearchInput] = useState(query)
   
   // Debounce the search query for URL updates and filtering
@@ -24,12 +24,6 @@ const Projects = () => {
   useEffect(() => {
     setQuery(debouncedQuery)
   }, [debouncedQuery, setQuery])
-  
-  // Initialize search input from URL on mount
-  useEffect(() => {
-    setSearchInput(query)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Only on mount
 
   useEffect(() => {
     let cancelled = false
