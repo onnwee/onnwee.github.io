@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
+	"github.com/onnwee/onnwee.github.io/backend/internal/metrics"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
 	"github.com/onnwee/onnwee.github.io/backend/internal/utils"
 )
@@ -43,6 +44,11 @@ func RegisterEventRoutes(r *mux.Router, s *server.Server) {
 		if err := s.DB.CreateEvent(r.Context(), input); err != nil {
 			http.Error(w, `{"error":"Failed to create event"}`, http.StatusInternalServerError)
 			return
+		}
+
+		// Increment Prometheus counter for events
+		if input.EventName.Valid {
+			metrics.IncrementEvent(input.EventName.String)
 		}
 
 		w.WriteHeader(http.StatusCreated)

@@ -93,6 +93,58 @@ func (q *Queries) GetEventsByName(ctx context.Context, arg GetEventsByNameParams
 	return items, nil
 }
 
+const getEventsCountByNameLastNDays = `-- name: GetEventsCountByNameLastNDays :many
+SELECT 
+  event_name,
+  COUNT(*) as event_count
+FROM events
+WHERE viewed_at >= NOW() - ($1 || ' days')::INTERVAL
+  AND event_name IS NOT NULL
+GROUP BY event_name
+ORDER BY event_count DESC
+`
+
+type GetEventsCountByNameLastNDaysRow struct {
+	EventName  sql.NullString `json:"event_name"`
+	EventCount int64          `json:"event_count"`
+}
+
+func (q *Queries) GetEventsCountByNameLastNDays(ctx context.Context, dollar_1 sql.NullString) ([]GetEventsCountByNameLastNDaysRow, error) {
+	rows, err := q.db.QueryContext(ctx, getEventsCountByNameLastNDays, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetEventsCountByNameLastNDaysRow
+	for rows.Next() {
+		var i GetEventsCountByNameLastNDaysRow
+		if err := rows.Scan(&i.EventName, &i.EventCount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getTotalEventsLastNDays = `-- name: GetTotalEventsLastNDays :one
+SELECT COUNT(*) 
+FROM events
+WHERE viewed_at >= NOW() - ($1 || ' days')::INTERVAL
+`
+
+func (q *Queries) GetTotalEventsLastNDays(ctx context.Context, dollar_1 sql.NullString) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getTotalEventsLastNDays, dollar_1)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const listEvents = `-- name: ListEvents :many
 SELECT id, event_name, data, referrer, user_agent, session_id, ip_address, viewed_at, user_id FROM events
 WHERE 
