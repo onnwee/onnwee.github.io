@@ -16,10 +16,12 @@ The backend implements comprehensive observability using:
 
 ### Optional Observability Configuration
 - `APP_ENV`: Application environment (e.g., `development`, `staging`, `production`)
-- `OTEL_EXPORTER_OTLP_ENDPOINT`: OpenTelemetry collector endpoint for trace export
-  - Example: `localhost:4318` (HTTP) or `localhost:4317` (gRPC)
+- `OTEL_EXPORTER_OTLP_ENDPOINT`: OpenTelemetry collector endpoint for trace export (HTTP only)
+  - Format: `host:port` (no scheme or path, e.g., `localhost:4318`)
+  - Default HTTP port: `4318`
   - If not set, traces will not be exported (noop mode)
   - Useful for local development with tools like Jaeger or Tempo
+  - Note: The implementation uses HTTP transport only. For gRPC support, additional configuration would be needed.
 
 ## Metrics
 
@@ -87,14 +89,14 @@ The backend creates spans for:
 #### Export to OTLP Collector
 ```bash
 # Export to local Jaeger (HTTP endpoint)
+# Note: Format is host:port without scheme
 OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4318 ./server
-
-# Export to local Jaeger (gRPC endpoint)
-OTEL_EXPORTER_OTLP_ENDPOINT=localhost:4317 ./server
 
 # Export to production collector
 OTEL_EXPORTER_OTLP_ENDPOINT=collector.example.com:4318 APP_ENV=production ./server
 ```
+
+**Important**: The endpoint format is `host:port` without the `http://` or `https://` scheme. The implementation uses HTTP transport with the `WithInsecure()` option for local development. For production use with TLS, modify `internal/observability/setup.go` to remove `WithInsecure()`.
 
 ### Local Development with Jaeger
 
