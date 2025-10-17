@@ -59,13 +59,18 @@ func RegisterEventRoutes(r *mux.Router, s *server.Server) {
 		query := r.URL.Query()
 
 		// Pagination defaults
-		limit, err := strconv.Atoi(query.Get("limit"))
-		if err != nil || limit <= 0 {
-			limit = 20
+		limit := int32(20) // default
+		if limitStr := query.Get("limit"); limitStr != "" {
+			if limit64, err := strconv.ParseInt(limitStr, 10, 32); err == nil && limit64 > 0 {
+				limit = int32(limit64)
+			}
 		}
-		offset, err := strconv.Atoi(query.Get("offset"))
-		if err != nil || offset < 0 {
-			offset = 0
+
+		offset := int32(0) // default
+		if offsetStr := query.Get("offset"); offsetStr != "" {
+			if offset64, err := strconv.ParseInt(offsetStr, 10, 32); err == nil && offset64 >= 0 {
+				offset = int32(offset64)
+			}
 		}
 
 		// Optional filters
@@ -82,8 +87,8 @@ func RegisterEventRoutes(r *mux.Router, s *server.Server) {
 		params := db.ListEventsParams{
 			EventName: eventName,
 			SessionID: sessionID,
-			Limit:     int32(limit),
-			Offset:    int32(offset),
+			Limit:     limit,
+			Offset:    offset,
 		}
 
 		events, err := s.DB.ListEvents(r.Context(), params)
