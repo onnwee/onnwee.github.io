@@ -1,0 +1,21 @@
+# Environment variables
+.env
+
+# Binary files
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Dependency directories (remove if needed)
+vendor/
