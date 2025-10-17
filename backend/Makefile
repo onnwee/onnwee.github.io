@@ -17,7 +17,7 @@ ifneq ("$(wildcard $(ENV_FILE))","")
 	export
 endif
 
-.PHONY: all build run seed docker-up docker-down docker-restart logs migrate-up migrate-down migrate-down-1 migrate-create migrate-force
+.PHONY: all build run seed docker-up docker-down docker-restart logs migrate-up migrate-down migrate-down-1 migrate-create migrate-force migrate-reset reset-db
 
 all: build
 
@@ -55,6 +55,11 @@ rebuild: clean build
 clean:
 	rm -f bin/$(APP_NAME)
 
+## Reset database using migrations (recommended)
+migrate-reset:
+	@bash scripts/reset_db_with_migrations.sh
+
+## Reset database using legacy script (deprecated)
 reset-db:
 	@bash scripts/reset_db.sh
 

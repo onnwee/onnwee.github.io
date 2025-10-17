@@ -281,6 +281,12 @@ This project uses [golang-migrate](https://github.com/golang-migrate/migrate) fo
   - `NNNNNN_add_users_table.up.sql` - Applied when migrating up
   - `NNNNNN_add_users_table.down.sql` - Applied when rolling back
 
+* **Reset database (rollback all, then apply all):**
+  ```bash
+  make migrate-reset
+  ```
+  This is useful for development when you want a clean slate.
+
 * **Force migration version (recovery only):**
   ```bash
   make migrate-force VERSION=1

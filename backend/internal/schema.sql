@@ -1,3 +1,7 @@
+-- ⚠️ DEPRECATED: This file is kept for reference only.
+-- The project now uses versioned migrations in the migrations/ directory.
+-- See README.md for migration documentation.
+
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE IF NOT EXISTS users (
