@@ -9,9 +9,11 @@ import (
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
 )
 
+type ctxKey string
+
 const (
-	sessionCookieName = "session_id"
-	userIDContextKey  = "user_id"
+	sessionCookieName        = "session_id"
+	userIDContextKey  ctxKey = "user_id"
 )
 
 // RequireAuth middleware checks for a valid session cookie

@@ -39,25 +39,30 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(user)
+		_ = json.NewEncoder(w).Encode(user)
 	}).Methods("POST")
 
 	// GET /users - List users with pagination
 	r.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()
 
-		limit, err := strconv.Atoi(query.Get("limit"))
-		if err != nil || limit <= 0 {
-			limit = 10
+		limit := int32(10) // default
+		if limitStr := query.Get("limit"); limitStr != "" {
+			if limit64, err := strconv.ParseInt(limitStr, 10, 32); err == nil && limit64 > 0 {
+				limit = int32(limit64)
+			}
 		}
-		offset, err := strconv.Atoi(query.Get("offset"))
-		if err != nil || offset < 0 {
-			offset = 0
+
+		offset := int32(0) // default
+		if offsetStr := query.Get("offset"); offsetStr != "" {
+			if offset64, err := strconv.ParseInt(offsetStr, 10, 32); err == nil && offset64 >= 0 {
+				offset = int32(offset64)
+			}
 		}
 
 		params := db.ListUsersParams{
-			Limit:  int32(limit),
-			Offset: int32(offset),
+			Limit:  limit,
+			Offset: offset,
 		}
 
 		users, err := s.DB.ListUsers(r.Context(), params)
@@ -67,19 +72,20 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(users)
+		_ = json.NewEncoder(w).Encode(users)
 	}).Methods("GET")
 
 	// GET /users/{id} - Get user by ID
 	r.HandleFunc("/users/{id}", func(w http.ResponseWriter, r *http.Request) {
 		idStr := mux.Vars(r)["id"]
-		id, err := strconv.Atoi(idStr)
+		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
+		id := int32(id64)
 
-		user, err := s.DB.GetUserByID(r.Context(), int32(id))
+		user, err := s.DB.GetUserByID(r.Context(), id)
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"User not found"}`, http.StatusNotFound)
 			return
@@ -89,19 +95,20 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(user)
+		_ = json.NewEncoder(w).Encode(user)
 	}).Methods("GET")
 
 	// DELETE /users/{id} - Delete a user
 	r.HandleFunc("/users/{id}", func(w http.ResponseWriter, r *http.Request) {
 		idStr := mux.Vars(r)["id"]
-		id, err := strconv.Atoi(idStr)
+		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
+		id := int32(id64)
 
-		err = s.DB.DeleteUser(r.Context(), int32(id))
+		err = s.DB.DeleteUser(r.Context(), id)
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"User not found"}`, http.StatusNotFound)
 			return
@@ -116,11 +123,12 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 	// PATCH /users/{id} - Partial update
 	r.HandleFunc("/users/{id}", func(w http.ResponseWriter, r *http.Request) {
 		idStr := mux.Vars(r)["id"]
-		id, err := strconv.Atoi(idStr)
+		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
+		id := int32(id64)
 
 		var input struct {
 			Username *string `json:"username"`
@@ -132,7 +140,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		params := db.PatchUserParams{
-			ID:       int32(id),
+			ID:       id,
 			Username: utils.ToNullString(input.Username),
 			Email:    utils.ToNullString(input.Email),
 		}
@@ -147,7 +155,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(user)
+		_ = json.NewEncoder(w).Encode(user)
 	}).Methods("PATCH")
 
 	// GET /users/available?username=...
@@ -162,7 +170,7 @@ func RegisterUserRoutes(r *mux.Router, s *server.Server) {
 		available := err == sql.ErrNoRows
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]bool{
+		_ = json.NewEncoder(w).Encode(map[string]bool{
 			"available": available,
 		})
 	}).Methods("GET")

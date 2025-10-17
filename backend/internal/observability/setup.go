@@ -18,7 +18,7 @@ var (
 	serviceVersion = "0.1.0"
 )
 
-func InitOpenTelemetry(ctx context.Context) (*prometheus.Exporter, error) {
+func InitOpenTelemetry(_ context.Context) (*prometheus.Exporter, error) {
 	// Create a Prometheus exporter
 	exporter, err := prometheus.New()
 	if err != nil {

@@ -20,8 +20,8 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 		Title       string   `json:"title"`
 		Slug        string   `json:"slug"`
 		Description *string  `json:"description"`
-		RepoUrl     *string  `json:"repo_url"`
-		LiveUrl     *string  `json:"live_url"`
+		RepoURL     *string  `json:"repo_url"`
+		LiveURL     *string  `json:"live_url"`
 		Summary     *string  `json:"summary"`
 		Tags        []string `json:"tags"`
 		Footer      *string  `json:"footer"`
@@ -62,8 +62,8 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 			Title:       p.Title,
 			Slug:        p.Slug,
 			Description: toPtr(p.Description),
-			RepoUrl:     toPtr(p.RepoUrl),
-			LiveUrl:     toPtr(p.LiveUrl),
+			RepoURL:     toPtr(p.RepoUrl),
+			LiveURL:     toPtr(p.LiveUrl),
 			Summary:     toPtr(p.Summary),
 			Tags:        tags,
 			Footer:      toPtr(p.Footer),
@@ -77,24 +77,6 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 			CreatedAt:   toTimeString(p.CreatedAt),
 			UpdatedAt:   toTimeString(p.UpdatedAt),
 		}
-	}
-
-	type projectPayload struct {
-		Title       string   `json:"title"`
-		Slug        string   `json:"slug"`
-		Description *string  `json:"description"`
-		RepoUrl     *string  `json:"repo_url"`
-		LiveUrl     *string  `json:"live_url"`
-		Summary     *string  `json:"summary"`
-		Tags        []string `json:"tags"`
-		Footer      *string  `json:"footer"`
-		Href        *string  `json:"href"`
-		External    *bool    `json:"external"`
-		Color       *string  `json:"color"`
-		Emoji       *string  `json:"emoji"`
-		Content     *string  `json:"content"`
-		Image       *string  `json:"image"`
-		Embed       *string  `json:"embed"`
 	}
 
 	// GET /projects - List projects
@@ -117,7 +99,7 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	}).Methods("GET")
 
 	// GET /projects/{slug} - Get project by slug
@@ -133,7 +115,7 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(toResp(project))
+		_ = json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("GET")
 }
 
@@ -144,8 +126,8 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 		Title       string   `json:"title"`
 		Slug        string   `json:"slug"`
 		Description *string  `json:"description"`
-		RepoUrl     *string  `json:"repo_url"`
-		LiveUrl     *string  `json:"live_url"`
+		RepoURL     *string  `json:"repo_url"`
+		LiveURL     *string  `json:"live_url"`
 		Summary     *string  `json:"summary"`
 		Tags        []string `json:"tags"`
 		Footer      *string  `json:"footer"`
@@ -186,8 +168,8 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 			Title:       p.Title,
 			Slug:        p.Slug,
 			Description: toPtr(p.Description),
-			RepoUrl:     toPtr(p.RepoUrl),
-			LiveUrl:     toPtr(p.LiveUrl),
+			RepoURL:     toPtr(p.RepoUrl),
+			LiveURL:     toPtr(p.LiveUrl),
 			Summary:     toPtr(p.Summary),
 			Tags:        tags,
 			Footer:      toPtr(p.Footer),
@@ -207,8 +189,8 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 		Title       string   `json:"title"`
 		Slug        string   `json:"slug"`
 		Description *string  `json:"description"`
-		RepoUrl     *string  `json:"repo_url"`
-		LiveUrl     *string  `json:"live_url"`
+		RepoURL     *string  `json:"repo_url"`
+		LiveURL     *string  `json:"live_url"`
 		Summary     *string  `json:"summary"`
 		Tags        []string `json:"tags"`
 		Footer      *string  `json:"footer"`
@@ -242,8 +224,8 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 			Title:       body.Title,
 			Slug:        body.Slug,
 			Description: utils.ToNullString(body.Description),
-			RepoUrl:     utils.ToNullString(body.RepoUrl),
-			LiveUrl:     utils.ToNullString(body.LiveUrl),
+			RepoUrl:     utils.ToNullString(body.RepoURL),
+			LiveUrl:     utils.ToNullString(body.LiveURL),
 			Summary:     utils.ToNullString(body.Summary),
 			Tags:        tags,
 			Footer:      utils.ToNullString(body.Footer),
@@ -265,17 +247,18 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(toResp(project))
+		_ = json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("POST")
 
 	// PUT /admin/projects/{id} - Update a project
 	r.HandleFunc("/projects/{id}", func(w http.ResponseWriter, r *http.Request) {
 		idStr := mux.Vars(r)["id"]
-		id, err := strconv.Atoi(idStr)
+		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
+		id := int32(id64)
 
 		var body projectPayload
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -294,11 +277,11 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		params := db.UpdateProjectParams{
-			ID:          int32(id),
+			ID:          id,
 			Title:       body.Title,
 			Description: utils.ToNullString(body.Description),
-			RepoUrl:     utils.ToNullString(body.RepoUrl),
-			LiveUrl:     utils.ToNullString(body.LiveUrl),
+			RepoUrl:     utils.ToNullString(body.RepoURL),
+			LiveUrl:     utils.ToNullString(body.LiveURL),
 			Summary:     utils.ToNullString(body.Summary),
 			Tags:        tags,
 			Footer:      utils.ToNullString(body.Footer),
@@ -321,19 +304,20 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(toResp(project))
+		_ = json.NewEncoder(w).Encode(toResp(project))
 	}).Methods("PUT")
 
 	// DELETE /admin/projects/{id} - Delete a project
 	r.HandleFunc("/projects/{id}", func(w http.ResponseWriter, r *http.Request) {
 		idStr := mux.Vars(r)["id"]
-		id, err := strconv.Atoi(idStr)
+		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
+		id := int32(id64)
 
-		err = s.DB.DeleteProject(r.Context(), int32(id))
+		err = s.DB.DeleteProject(r.Context(), id)
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Project not found"}`, http.StatusNotFound)
 			return

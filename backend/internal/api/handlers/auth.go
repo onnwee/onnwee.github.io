@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -97,7 +98,7 @@ func RegisterAuthRoutes(r *mux.Router, s *server.Server) {
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success":  true,
 			"user_id":  user.ID,
 			"username": user.Username,
@@ -120,8 +121,8 @@ func RegisterAuthRoutes(r *mux.Router, s *server.Server) {
 
 		// Expire the session in the database
 		if err := s.DB.ExpireSession(r.Context(), sessionID); err != nil {
-			// Even if DB update fails, we'll clear the cookie
-			// Log error but continue
+			// Log and continue; do not fail the logout flow.
+			log.Printf("warning: expire session failed: %v", err)
 		}
 
 		// Clear the cookie
@@ -137,7 +138,7 @@ func RegisterAuthRoutes(r *mux.Router, s *server.Server) {
 		})
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{
 			"success": true,
 			"message": "Logged out successfully",
 		})

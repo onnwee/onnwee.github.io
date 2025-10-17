@@ -45,7 +45,7 @@ func RegisterSessionRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(session)
+		_ = json.NewEncoder(w).Encode(session)
 	}).Methods("POST")
 
 	// GET /sessions/{id} - get session by ID
@@ -65,7 +65,7 @@ func RegisterSessionRoutes(r *mux.Router, s *server.Server) {
 			http.Error(w, `{"error":"Failed to fetch session"}`, http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(w).Encode(session)
+		_ = json.NewEncoder(w).Encode(session)
 	}).Methods("GET")
 
 	// DELETE /sessions/{id} - delete session by ID
@@ -87,17 +87,18 @@ func RegisterSessionRoutes(r *mux.Router, s *server.Server) {
 
 	// GET /sessions/user/{user_id} - list sessions by user ID
 	r.HandleFunc("/sessions/user/{user_id}", func(w http.ResponseWriter, r *http.Request) {
-		userID, err := strconv.Atoi(mux.Vars(r)["user_id"])
+		userID64, err := strconv.ParseInt(mux.Vars(r)["user_id"], 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid user ID"}`, http.StatusBadRequest)
 			return
 		}
-		sessions, err := s.DB.ListSessionsByUser(r.Context(), sql.NullInt32{Int32: int32(userID), Valid: true})
+		userID := int32(userID64)
+		sessions, err := s.DB.ListSessionsByUser(r.Context(), sql.NullInt32{Int32: userID, Valid: true})
 		if err != nil {
 			http.Error(w, `{"error":"Failed to fetch sessions"}`, http.StatusInternalServerError)
 			return
 		}
-		json.NewEncoder(w).Encode(sessions)
+		_ = json.NewEncoder(w).Encode(sessions)
 	}).Methods("GET")
 
 	// PATCH /sessions/{id}/expire - expire session by ID

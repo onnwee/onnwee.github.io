@@ -47,24 +47,29 @@ func RegisterLogRoutes(r *mux.Router, s *server.Server) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(log)
+		_ = json.NewEncoder(w).Encode(log)
 	}).Methods("POST")
 
 	// GET /logs - List logs with pagination
 	r.HandleFunc("/logs", func(w http.ResponseWriter, r *http.Request) {
 		query := r.URL.Query()
-		limit, err := strconv.Atoi(query.Get("limit"))
-		if err != nil || limit <= 0 {
-			limit = 10
+		limit := int32(10) // default
+		if limitStr := query.Get("limit"); limitStr != "" {
+			if limit64, err := strconv.ParseInt(limitStr, 10, 32); err == nil && limit64 > 0 {
+				limit = int32(limit64)
+			}
 		}
-		offset, err := strconv.Atoi(query.Get("offset"))
-		if err != nil || offset < 0 {
-			offset = 0
+
+		offset := int32(0) // default
+		if offsetStr := query.Get("offset"); offsetStr != "" {
+			if offset64, err := strconv.ParseInt(offsetStr, 10, 32); err == nil && offset64 >= 0 {
+				offset = int32(offset64)
+			}
 		}
 
 		params := db.ListLogsParams{
-			Limit:  int32(limit),
-			Offset: int32(offset),
+			Limit:  limit,
+			Offset: offset,
 		}
 
 		logs, err := s.DB.ListLogs(r.Context(), params)
@@ -74,19 +79,20 @@ func RegisterLogRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(logs)
+		_ = json.NewEncoder(w).Encode(logs)
 	}).Methods("GET")
 
 	// GET /logs/{id} - Get log by ID
 	r.HandleFunc("/logs/{id}", func(w http.ResponseWriter, r *http.Request) {
 		idStr := mux.Vars(r)["id"]
-		id, err := strconv.Atoi(idStr)
+		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
+		id := int32(id64)
 
-		log, err := s.DB.GetLogByID(r.Context(), int32(id))
+		log, err := s.DB.GetLogByID(r.Context(), id)
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Log not found"}`, http.StatusNotFound)
 			return
@@ -96,19 +102,20 @@ func RegisterLogRoutes(r *mux.Router, s *server.Server) {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(log)
+		_ = json.NewEncoder(w).Encode(log)
 	}).Methods("GET")
 
 	// DELETE /logs/{id} - Delete a log
 	r.HandleFunc("/logs/{id}", func(w http.ResponseWriter, r *http.Request) {
 		idStr := mux.Vars(r)["id"]
-		id, err := strconv.Atoi(idStr)
+		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
 			http.Error(w, `{"error":"Invalid ID"}`, http.StatusBadRequest)
 			return
 		}
+		id := int32(id64)
 
-		err = s.DB.DeleteLog(r.Context(), int32(id))
+		err = s.DB.DeleteLog(r.Context(), id)
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Log not found"}`, http.StatusNotFound)
 			return

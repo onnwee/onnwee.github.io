@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"os"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // postgres driver for database/sql
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
 )
 
