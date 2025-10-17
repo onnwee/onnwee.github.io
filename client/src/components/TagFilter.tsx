@@ -1,6 +1,7 @@
 type TagFilterProps = {
   tags: string[]
   selected: string | null
+  // eslint-disable-next-line no-unused-vars
   onSelect: (tag: string | null) => void
 }
 
