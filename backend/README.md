@@ -107,6 +107,36 @@ This is the backend API for the `onnwee` platform. It's written in Go and uses P
 * `GET /page-views?path=/some/path` — List views for a path
 * `POST /page-views` — Log a new page view
 
+### Analytics
+
+* `GET /analytics/stats` — Get aggregate analytics statistics
+  * Query params: `days` (default: 7, options: 7, 30)
+  * Returns: Total page views, total events, top paths, and top event names for the specified time period
+  * Example: `GET /analytics/stats?days=30`
+  * Response:
+    ```json
+    {
+      "total_page_views": 1234,
+      "total_events": 567,
+      "page_views_by_path": [
+        {"path": "/projects", "count": 345},
+        {"path": "/", "count": 289}
+      ],
+      "events_by_name": [
+        {"event_name": "click", "count": 123},
+        {"event_name": "scroll", "count": 89}
+      ],
+      "period": "30 days"
+    }
+    ```
+
+### Prometheus Metrics
+
+* `GET /metrics` — Prometheus metrics endpoint
+  * Exports `http_page_views_total{path, method}` counter
+  * Exports `http_events_total{event_name}` counter
+  * Additional standard Go metrics and OpenTelemetry metrics
+
 ### Sessions
 
 * `GET /sessions` — List all sessions
@@ -170,6 +200,43 @@ func main() {
 * Session cookies are httpOnly with SameSite=Lax
 * Default expiration: 24 hours
 * Rate limiting applies to login attempts (60 requests/minute)
+
+---
+
+## 📊 Analytics & Privacy
+
+The backend includes lightweight analytics collection for monitoring usage:
+
+### Automatic Page View Tracking
+
+The analytics middleware automatically records page views for all GET requests:
+* **Path**: The requested URL path
+* **Method**: HTTP method (GET)
+* **Referrer**: The referring page (if available)
+* **User Agent**: Browser/client user agent string
+* **IP Address**: **Anonymized** for privacy (see below)
+* **Timestamp**: When the request was made
+
+### IP Anonymization
+
+To protect user privacy, all IP addresses are anonymized before storage:
+* **IPv4**: Last octet is masked (e.g., `192.168.1.123` → `192.168.1.0`)
+* **IPv6**: Last 80 bits are masked, keeping only the /48 prefix
+* **Invalid IPs**: Hashed using SHA256
+
+This ensures compliance with privacy regulations while still allowing basic geographic and network analysis.
+
+### Event Tracking
+
+Events can be manually tracked via the `/events` endpoint. Each event is also counted in Prometheus metrics for real-time monitoring.
+
+### Prometheus Integration
+
+All analytics are exposed as Prometheus metrics at `/metrics`:
+* `http_page_views_total{path, method}` - Counter of page views by path and HTTP method
+* `http_events_total{event_name}` - Counter of custom events by event name
+
+These metrics can be scraped by Prometheus and visualized in Grafana or similar tools.
 
 ---
 

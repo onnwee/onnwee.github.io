@@ -29,16 +29,20 @@ type Querier interface {
 	DeleteUser(ctx context.Context, id int32) error
 	ExpireSession(ctx context.Context, id uuid.UUID) error
 	GetEventsByName(ctx context.Context, arg GetEventsByNameParams) ([]Event, error)
+	GetEventsCountByNameLastNDays(ctx context.Context, dollar_1 sql.NullString) ([]GetEventsCountByNameLastNDaysRow, error)
 	GetLogByID(ctx context.Context, id int32) (Log, error)
 	GetPostBySlug(ctx context.Context, slug string) (Post, error)
 	GetProjectBySlug(ctx context.Context, slug string) (Project, error)
 	GetSessionByID(ctx context.Context, id uuid.UUID) (Session, error)
+	GetTotalEventsLastNDays(ctx context.Context, dollar_1 sql.NullString) (int64, error)
+	GetTotalViewsLastNDays(ctx context.Context, dollar_1 sql.NullString) (int64, error)
 	GetUserByEmail(ctx context.Context, email string) (User, error)
 	GetUserByID(ctx context.Context, id int32) (User, error)
 	GetUserByUsername(ctx context.Context, username string) (User, error)
 	GetUserForAuth(ctx context.Context, username string) (User, error)
 	GetValidSession(ctx context.Context, id uuid.UUID) (Session, error)
 	GetViewsByPath(ctx context.Context, arg GetViewsByPathParams) ([]PageView, error)
+	GetViewsCountByPathLastNDays(ctx context.Context, dollar_1 sql.NullString) ([]GetViewsCountByPathLastNDaysRow, error)
 	// @param event_name:nullable
 	// @param session_id:nullable
 	ListEvents(ctx context.Context, arg ListEventsParams) ([]Event, error)
