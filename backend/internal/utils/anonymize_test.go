@@ -1,15 +1,15 @@
 package utils
 
 import (
-	"strings"
 	"testing"
 )
 
 func TestAnonymizeIP(t *testing.T) {
 	tests := []struct {
-		name     string
-		ip       string
-		expected string // or check pattern
+		name       string
+		ip         string
+		expected   string // for exact match
+		expectHash bool   // for hash validation
 	}{
 		{
 			name:     "IPv4 address",
@@ -27,9 +27,9 @@ func TestAnonymizeIP(t *testing.T) {
 			// Should keep the /48 prefix and mask the rest
 		},
 		{
-			name: "Invalid IP should be hashed",
-			ip:   "not-an-ip",
-			// Should return a hash
+			name:       "Invalid IP should be hashed",
+			ip:         "not-an-ip",
+			expectHash: true,
 		},
 	}
 
@@ -50,7 +50,7 @@ func TestAnonymizeIP(t *testing.T) {
 			}
 
 			// For invalid IPs, should return a hash (64 hex chars)
-			if strings.Contains(tt.ip, "not-an-ip") && len(result) != 64 {
+			if tt.expectHash && len(result) != 64 {
 				t.Errorf("AnonymizeIP(%s) should return a hash of length 64, got %d", tt.ip, len(result))
 			}
 		})
