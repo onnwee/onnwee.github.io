@@ -54,14 +54,17 @@ export default function LazyGrid<T>({
 
   const hasMore = visibleCount < items.length
   const skeletonsToShow = Math.min(skeletonCount, items.length - visibleCount)
+  const shouldAnnounceLoadedCount = 
+    !isLoading && 
+    lastAnnouncedCount > itemsPerPage && 
+    lastAnnouncedCount === visibleCount
 
   return (
     <>
       {/* ARIA live region for accessibility announcements */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {isLoading && 'Loading more items...'}
-        {!isLoading && lastAnnouncedCount > itemsPerPage && lastAnnouncedCount === visibleCount && 
-          `Loaded ${visibleCount} of ${items.length} items`}
+        {shouldAnnounceLoadedCount && `Loaded ${visibleCount} of ${items.length} items`}
       </div>
 
       <div className={`grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 ${className}`}>
