@@ -39,6 +39,6 @@ func NewRouter(queries *db.Queries) http.Handler {
 	adminRouter.Use(middleware.RequireAuth(queries))
 	handlers.RegisterAdminProjectRoutes(adminRouter, s)
 
-	base := middleware.Chain(r, middleware.Logging, middleware.Recovery, middleware.CORS, middleware.RealIP, middleware.Analytics(queries), middleware.RateLimit)
+	base := middleware.Chain(r, middleware.Logging, middleware.Recovery, middleware.CORS, middleware.RealIP, middleware.Analytics(queries), middleware.RateLimit, middleware.Metrics)
 	return otelhttp.NewHandler(base, "HTTPRouter")
 }
