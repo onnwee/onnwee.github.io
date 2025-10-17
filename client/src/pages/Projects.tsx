@@ -1,6 +1,6 @@
-import { TerminalCard, LazyGrid } from '@/components'
-import { useResponsiveItemsPerPage } from '@/hooks'
-import { useEffect, useMemo, useState } from 'react'
+import { TerminalCard, LazyGrid, MultiTagFilter } from '@/components'
+import { useResponsiveItemsPerPage, useUrlArrayState, useUrlState, useDebounce } from '@/hooks'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { ProjectsApi, type ApiProject } from '@/utils/api'
 
 const Projects = () => {
@@ -9,6 +9,27 @@ const Projects = () => {
   const [data, setData] = useState<ApiProject[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+
+  // URL-synchronized state for filters
+  const [selectedTags, setSelectedTags] = useUrlArrayState('tags')
+  const [query, setQuery] = useUrlState('query', '')
+  
+  // Local state for immediate search input feedback
+  const [searchInput, setSearchInput] = useState(query)
+  
+  // Debounce the search query for URL updates and filtering
+  const debouncedQuery = useDebounce(searchInput, 300)
+  
+  // Sync debounced query to URL
+  useEffect(() => {
+    setQuery(debouncedQuery)
+  }, [debouncedQuery, setQuery])
+  
+  // Initialize search input from URL on mount
+  useEffect(() => {
+    setSearchInput(query)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []) // Only on mount
 
   useEffect(() => {
     let cancelled = false
@@ -32,6 +53,48 @@ const Projects = () => {
   }, [])
 
   const projects = useMemo(() => data ?? [], [data])
+  
+  // Extract all unique tags from projects
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>()
+    projects.forEach(project => {
+      project.tags?.forEach(tag => tagSet.add(tag))
+    })
+    return Array.from(tagSet).sort()
+  }, [projects])
+  
+  // Toggle tag selection
+  const toggleTag = useCallback((tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]
+    )
+  }, [setSelectedTags])
+  
+  // Clear all filters
+  const clearFilters = useCallback(() => {
+    setSelectedTags([])
+    setSearchInput('')
+    setQuery('')
+  }, [setSelectedTags, setQuery])
+  
+  // Filter projects based on selected tags (AND logic) and search query
+  const filteredProjects = useMemo(() => {
+    return projects.filter(project => {
+      // Tag filtering with AND logic - project must have ALL selected tags
+      const matchesTags = selectedTags.length === 0 || 
+        selectedTags.every(tag => project.tags?.includes(tag))
+      
+      // Text search - matches title OR summary OR any tag OR emoji
+      const searchLower = debouncedQuery.toLowerCase()
+      const matchesSearch = !debouncedQuery || 
+        project.title.toLowerCase().includes(searchLower) ||
+        project.summary?.toLowerCase().includes(searchLower) ||
+        project.tags?.some(tag => tag.toLowerCase().includes(searchLower)) ||
+        project.emoji?.toLowerCase().includes(searchLower)
+      
+      return matchesTags && matchesSearch
+    })
+  }, [projects, selectedTags, debouncedQuery])
 
   return (
     <section className="section space-y-12">
@@ -42,7 +105,7 @@ const Projects = () => {
             <p className="chip is-active w-fit">Work</p>
             <h1 className="headline gradient-text">Selected Projects</h1>
             <p className="max-w-2xl text-base text-text-muted">
-              A cross-section of the tools, products, and experiments I’ve shipped as a full-stack
+              A cross-section of the tools, products, and experiments I've shipped as a full-stack
               engineer—from data-intensive dashboards to creative coding installations. Each piece
               blends maintainable architecture with a polished, memorable interface.
             </p>
@@ -54,11 +117,38 @@ const Projects = () => {
         </div>
       </div>
 
+      {/* Filter Controls */}
+      <div className="surface-card px-6 py-5">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <input
+            type="search"
+            placeholder="Search by title, tags, summary, or emoji"
+            className="w-full rounded-full border border-border/30 bg-surface/70 px-5 py-3 text-sm text-text placeholder:text-text-muted focus:border-accent/50 focus:outline-none focus:ring-2 focus:ring-accent/30 md:max-w-sm"
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            aria-label="Search projects"
+          />
+          <span className="text-xs uppercase tracking-[0.32em] text-text-muted">
+            {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'}
+          </span>
+        </div>
+        {allTags.length > 0 && (
+          <div className="mt-6">
+            <MultiTagFilter
+              tags={allTags}
+              selected={selectedTags}
+              onToggle={toggleTag}
+              onClear={clearFilters}
+            />
+          </div>
+        )}
+      </div>
+
       {loading && <div className="text-text-muted">Loading projects…</div>}
       {error && !loading && <div className="text-red-400">{error}</div>}
       {!loading && !error && (
         <LazyGrid
-          items={projects}
+          items={filteredProjects}
           itemsPerPage={itemsPerPage}
           className="gap-8"
           animateIn
