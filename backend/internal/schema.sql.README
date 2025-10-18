@@ -1,0 +1,12 @@
+# DEPRECATED: schema.sql
+
+This file is kept for reference only.
+
+The project now uses versioned migrations in the `migrations/` directory.
+
+To apply schema changes:
+1. Create a new migration: `make migrate-create NAME=your_change_name`
+2. Edit the generated .up.sql and .down.sql files
+3. Apply the migration: `make migrate-up`
+
+See the main README.md for full migration documentation.

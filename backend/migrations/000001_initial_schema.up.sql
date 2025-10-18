@@ -1,9 +1,10 @@
--- ⚠️ DEPRECATED: This file is kept for reference only.
--- The project now uses versioned migrations in the migrations/ directory.
--- See README.md for migration documentation.
+-- Initial schema migration
+-- This migration creates all the base tables for the onnwee backend
 
+-- Enable pgcrypto extension for UUID generation
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
+-- Users table
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY NOT NULL,
   username TEXT NOT NULL UNIQUE,
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Posts table
 CREATE TABLE IF NOT EXISTS posts (
   id SERIAL PRIMARY KEY NOT NULL,
   title TEXT NOT NULL,
@@ -26,6 +28,7 @@ CREATE TABLE IF NOT EXISTS posts (
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Projects table
 CREATE TABLE IF NOT EXISTS projects (
   id SERIAL PRIMARY KEY NOT NULL,
   title TEXT NOT NULL,
@@ -49,6 +52,7 @@ CREATE TABLE IF NOT EXISTS projects (
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- Logs table
 CREATE TABLE IF NOT EXISTS logs (
   id SERIAL PRIMARY KEY,
   level TEXT NOT NULL,
@@ -58,9 +62,11 @@ CREATE TABLE IF NOT EXISTS logs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Indexes for logs
 CREATE INDEX idx_logs_created_at ON logs (created_at DESC);
 CREATE INDEX idx_logs_level ON logs (level);
 
+-- Events table
 CREATE TABLE IF NOT EXISTS events (
   id SERIAL PRIMARY KEY,
   event_name TEXT,
@@ -73,6 +79,7 @@ CREATE TABLE IF NOT EXISTS events (
   user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Page views table
 CREATE TABLE IF NOT EXISTS page_views (
   id SERIAL PRIMARY KEY,
   path TEXT NOT NULL,
@@ -84,9 +91,11 @@ CREATE TABLE IF NOT EXISTS page_views (
   user_id INTEGER REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Indexes for page_views
 CREATE INDEX idx_page_views_path ON page_views (path);
 CREATE INDEX idx_page_views_viewed_at ON page_views (viewed_at DESC);
 
+-- Sessions table
 CREATE TABLE IF NOT EXISTS sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
