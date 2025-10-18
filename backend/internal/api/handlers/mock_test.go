@@ -12,6 +12,7 @@ import (
 // that aren't being tested. Tests can embed this and override specific methods.
 type baseMockQuerier struct{}
 
+var _ db.Querier = (*baseMockQuerier)(nil)
 // Stub implementations for methods not used in projects/posts handlers
 func (m *baseMockQuerier) CountEvents(ctx context.Context) (int64, error) { return 0, nil }
 func (m *baseMockQuerier) CountViewsByPath(ctx context.Context, path string) (int64, error) {
