@@ -45,7 +45,7 @@ func InitOpenTelemetry(ctx context.Context) (*prometheus.Exporter, error) {
 	// Configure tracer provider with OTLP exporter if endpoint is set
 	var tracerProvider *trace.TracerProvider
 	otlpEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
-	
+
 	if otlpEndpoint != "" {
 		// Create OTLP HTTP trace exporter
 		traceExporter, err := otlptracehttp.New(ctx,
@@ -72,7 +72,7 @@ func InitOpenTelemetry(ctx context.Context) (*prometheus.Exporter, error) {
 			trace.WithResource(res),
 		)
 	}
-	
+
 	otel.SetTracerProvider(tracerProvider)
 
 	return promExporter, nil

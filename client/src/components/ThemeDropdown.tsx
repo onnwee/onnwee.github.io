@@ -1,4 +1,4 @@
-import { FLAVOR_META } from '@/context/ThemeContext'
+import { FLAVOR_META } from '@/context/themeConstants'
 import { useTheme } from '@/hooks'
 import { ChevronDown, Sparkles } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'

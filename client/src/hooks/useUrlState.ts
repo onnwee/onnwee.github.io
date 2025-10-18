@@ -9,17 +9,21 @@ import { useSearchParams } from 'react-router-dom'
  */
 export function useUrlState(
   key: string,
-  defaultValue: string
+  defaultValue: string,
+  // eslint-disable-next-line no-unused-vars
 ): [string, (value: string) => void] {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const _value = useMemo(() => searchParams.get(key) || defaultValue, [searchParams, key, defaultValue])
+  const currentValue = useMemo(
+    () => searchParams.get(key) || defaultValue,
+    [searchParams, key, defaultValue],
+  )
 
   const setValue = useCallback(
     (newValue: string) => {
       setSearchParams(
-        prev => {
-          const next = new URLSearchParams(prev)
+        () => {
+          const next = new URLSearchParams(searchParams)
           if (newValue === defaultValue || !newValue) {
             next.delete(key)
           } else {
@@ -27,13 +31,13 @@ export function useUrlState(
           }
           return next
         },
-        { replace: true }
+        { replace: true },
       )
     },
-    [setSearchParams, key, defaultValue]
+    [setSearchParams, key, defaultValue, searchParams],
   )
 
-  return [_value, setValue]
+  return [currentValue, setValue]
 }
 
 /**
@@ -42,24 +46,26 @@ export function useUrlState(
  * @returns [values, setValues] tuple for array management
  */
 export function useUrlArrayState(
-  key: string
-): [string[], (values: string[] | ((prev: string[]) => string[])) => void] {
+  key: string,
+  // eslint-disable-next-line no-unused-vars
+): [string[], (newValues: string[] | ((prev: string[]) => string[])) => void] {
   const [searchParams, setSearchParams] = useSearchParams()
 
-  const _values = useMemo(() => {
+  const currentValues = useMemo(() => {
     const param = searchParams.get(key)
     return param ? param.split(',').filter(Boolean) : []
   }, [searchParams, key])
 
   const setValues = useCallback(
+    // eslint-disable-next-line no-unused-vars
     (newValues: string[] | ((prev: string[]) => string[])) => {
       setSearchParams(
-        prev => {
-          const currentValues = prev.get(key)?.split(',').filter(Boolean) || []
+        () => {
+          const currentValues = searchParams.get(key)?.split(',').filter(Boolean) || []
           const resolvedValues =
             typeof newValues === 'function' ? newValues(currentValues) : newValues
 
-          const next = new URLSearchParams(prev)
+          const next = new URLSearchParams(searchParams)
           if (resolvedValues.length === 0) {
             next.delete(key)
           } else {
@@ -67,11 +73,11 @@ export function useUrlArrayState(
           }
           return next
         },
-        { replace: true }
+        { replace: true },
       )
     },
-    [setSearchParams, key]
+    [setSearchParams, key, searchParams],
   )
 
-  return [_values, setValues]
+  return [currentValues, setValues]
 }

@@ -7,9 +7,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from 'react'
-
-export type Flavor = 'mocha' | 'macchiato' | 'frappe' | 'latte'
-export type MotionPreference = 'comfortable' | 'reduced'
+import { FLAVOR_META, FLAVORS, type Flavor, type MotionPreference } from './themeConstants'
 
 type ThemeContextType = {
   flavor: Flavor
@@ -22,16 +20,9 @@ type ThemeContextType = {
   toggleMotion: () => void
 }
 
-export const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-const FLAVORS: Flavor[] = ['mocha', 'macchiato', 'frappe', 'latte']
-
-export const FLAVOR_META: Record<Flavor, { label: string; accent: string; isDark: boolean }> = {
-  mocha: { label: 'Mocha', accent: '#cba6f7', isDark: true },
-  macchiato: { label: 'Macchiato', accent: '#8aadf4', isDark: true },
-  frappe: { label: 'Frappe', accent: '#ca9ee6', isDark: true },
-  latte: { label: 'Latte', accent: '#1e66f5', isDark: false },
-}
+export { ThemeContext }
 
 const getStoredFlavor = (): Flavor => {
   if (typeof window === 'undefined') return 'mocha'
@@ -47,7 +38,7 @@ const getStoredMotion = (): MotionPreference => {
   return prefersReduced ? 'reduced' : 'comfortable'
 }
 
-const ThemeProvider = ({ children }: { children: ReactNode }) => {
+function ThemeProvider({ children }: { children: ReactNode }) {
   const [flavor, setFlavor] = useState<Flavor>(() => getStoredFlavor())
   const [motion, setMotion] = useState<MotionPreference>(() => getStoredMotion())
 
