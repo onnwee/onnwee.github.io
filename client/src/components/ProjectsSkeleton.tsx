@@ -36,7 +36,7 @@ const ProjectsSkeleton = () => {
           <span className="h-7 w-16 animate-pulse rounded-full bg-border/30" />
           <span className="h-7 w-20 animate-pulse rounded-full bg-border/30" />
           <span className="h-7 w-14 animate-pulse rounded-full bg-border/30" />
-          <span className="h-7 w-18 animate-pulse rounded-full bg-border/30" />
+          <span className="h-7 w-20 animate-pulse rounded-full bg-border/30" />
           <span className="h-7 w-16 animate-pulse rounded-full bg-border/30" />
         </div>
       </div>
