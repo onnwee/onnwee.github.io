@@ -1,5 +1,6 @@
 import { AuthGate, ErrorBoundary, ErrorOverlay, Nav } from '@/components'
 import { About, Home, ProjectDetail, Projects, Support } from '@/pages'
+// import { BlogPost } from '@/pages' // Uncomment when blog route is enabled
 import AdminLayout from '@/pages/admin/AdminLayout'
 import AdminProjects from '@/pages/admin/AdminProjects'
 import AdminPosts from '@/pages/admin/AdminPosts'
@@ -47,10 +48,45 @@ const App = () => {
       >
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/projects" element={<Projects />} />
-          {/* ProjectDetail has its own internal error handling, but this provides an extra safety net */}
-          <Route path="/projects/:slug" element={<ProjectDetail />} />
-          {/* Blog temporarily disabled */}
+          <Route
+            path="/projects"
+            element={
+              <ErrorBoundary
+                onError={(error, errorInfo) => {
+                  errorMonitor.logReactError(error, errorInfo, 'Projects', 'high')
+                }}
+              >
+                <Projects />
+              </ErrorBoundary>
+            }
+          />
+          <Route
+            path="/projects/:slug"
+            element={
+              <ErrorBoundary
+                onError={(error, errorInfo) => {
+                  errorMonitor.logReactError(error, errorInfo, 'ProjectDetail', 'high')
+                }}
+              >
+                <ProjectDetail />
+              </ErrorBoundary>
+            }
+          />
+          {/* Blog temporarily disabled - uncomment when ready */}
+          {/*
+          <Route
+            path="/blog/:slug"
+            element={
+              <ErrorBoundary
+                onError={(error, errorInfo) => {
+                  errorMonitor.logReactError(error, errorInfo, 'BlogPost', 'high')
+                }}
+              >
+                <BlogPost />
+              </ErrorBoundary>
+            }
+          />
+          */}
           {/* Admin routes (not linked from nav) */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route

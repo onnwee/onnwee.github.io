@@ -1,6 +1,7 @@
 // import { MdxComponents } from '@/components'
+import { BlogPostSkeleton } from '@/components'
 import { lazy, Suspense, useMemo } from 'react'
-import { useParams } from 'react-router-dom'
+import { NavLink, useParams } from 'react-router-dom'
 
 const BlogPost = () => {
   const { slug } = useParams()
@@ -9,7 +10,29 @@ const BlogPost = () => {
     return lazy(async () => {
       if (!slug) {
         return {
-          default: () => <div className="section">Missing blog slug.</div>,
+          default: () => (
+            <section className="section">
+              <div className="surface-card flex flex-col gap-4 rounded-3xl border border-border/35 bg-surface/70 px-6 py-7 text-sm text-text-muted shadow-soft">
+                <div className="flex items-center gap-3 text-text">
+                  <span className="text-2xl">⚠️</span>
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.32em] text-text-muted">
+                      Missing blog identifier
+                    </p>
+                    <p className="text-base font-medium text-text">
+                      No blog post slug was provided in the URL
+                    </p>
+                  </div>
+                </div>
+                <NavLink
+                  to="/"
+                  className="self-start rounded-full bg-accent/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-accent transition-colors duration-300 hover:bg-accent/25"
+                >
+                  Go home
+                </NavLink>
+              </div>
+            </section>
+          ),
         }
       }
 
@@ -29,7 +52,38 @@ const BlogPost = () => {
       } catch (e) {
         console.error('Error loading blog post:', e)
         return {
-          default: () => <div className="section">Post not found.</div>,
+          default: () => (
+            <section className="section">
+              <div className="surface-card flex flex-col gap-4 rounded-3xl border border-border/35 bg-surface/70 px-6 py-7 text-sm text-text-muted shadow-soft">
+                <div className="flex items-center gap-3 text-text">
+                  <span className="text-2xl">🔍</span>
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-[0.32em] text-text-muted">
+                      Post not found
+                    </p>
+                    <p className="text-base font-medium text-text">
+                      The blog post "{slug}" could not be loaded
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => window.location.reload()}
+                    className="rounded-full bg-accent/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-accent transition-colors duration-300 hover:bg-accent/25"
+                  >
+                    Try again
+                  </button>
+                  <NavLink
+                    to="/"
+                    className="rounded-full border border-border/40 bg-surface/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-text transition-colors duration-300 hover:border-accent/40 hover:bg-accent/10 hover:text-accent"
+                  >
+                    Go home
+                  </NavLink>
+                </div>
+              </div>
+            </section>
+          ),
         }
       }
     })
@@ -37,11 +91,7 @@ const BlogPost = () => {
 
   return (
     <main id="main" className="section space-y-8">
-      <Suspense
-        fallback={
-          <div className="surface-card px-6 py-8 text-sm text-text-muted">Loading post...</div>
-        }
-      >
+      <Suspense fallback={<BlogPostSkeleton />}>
         <PostWrapper />
       </Suspense>
     </main>

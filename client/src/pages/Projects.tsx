@@ -1,4 +1,4 @@
-import { TerminalCard, LazyGrid, MultiTagFilter, SkeletonCard } from '@/components'
+import { TerminalCard, LazyGrid, MultiTagFilter, SkeletonCard, ProjectsSkeleton } from '@/components'
 import { useResponsiveItemsPerPage, useUrlArrayState, useUrlState, useDebounce } from '@/hooks'
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { ProjectsApi, type ApiProject } from '@/utils/api'
@@ -90,6 +90,37 @@ const Projects = () => {
     })
   }, [projects, selectedTags, debouncedQuery])
 
+  // Show skeleton while loading
+  if (loading) {
+    return <ProjectsSkeleton />
+  }
+
+  // Show error state
+  if (error && !loading) {
+    return (
+      <section className="section">
+        <div className="surface-card flex flex-col gap-4 rounded-3xl border border-border/35 bg-surface/70 px-6 py-7 text-sm text-text-muted shadow-soft">
+          <div className="flex items-center gap-3 text-text">
+            <span className="text-2xl">⚠️</span>
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.32em] text-text-muted">
+                Failed to load projects
+              </p>
+              <p className="text-base font-medium text-text">{error}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="self-start rounded-full bg-accent/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-accent transition-colors duration-300 hover:bg-accent/25"
+          >
+            Try again
+          </button>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="section space-y-12">
       <div className="glass-panel relative overflow-hidden px-10 py-12">
@@ -138,38 +169,34 @@ const Projects = () => {
         )}
       </div>
 
-      {loading && <div className="text-text-muted">Loading projects…</div>}
-      {error && !loading && <div className="text-red-400">{error}</div>}
-      {!loading && !error && (
-        <LazyGrid
-          items={filteredProjects}
-          itemsPerPage={itemsPerPage}
-          className="gap-8"
-          animateIn
-          animationDelayStep={120}
-          renderSkeleton={() => <SkeletonCard />}
-          skeletonCount={6}
-          renderItem={project => (
-            <TerminalCard
-              key={project.slug}
-              title={`${project.emoji ?? ''} ${project.title}`}
-              summary={project.summary ?? undefined}
-              tags={project.tags}
-              footer={project.footer ?? undefined}
-              href={project.href ?? `/projects/${project.slug}`}
-              external={project.external}
-              color={
-                project.color === 'green' ||
-                project.color === 'pink' ||
-                project.color === 'cyan' ||
-                project.color === 'yellow'
-                  ? (project.color as 'green' | 'pink' | 'cyan' | 'yellow')
-                  : undefined
-              }
-            />
-          )}
-        />
-      )}
+      <LazyGrid
+        items={filteredProjects}
+        itemsPerPage={itemsPerPage}
+        className="gap-8"
+        animateIn
+        animationDelayStep={120}
+        renderSkeleton={() => <SkeletonCard />}
+        skeletonCount={6}
+        renderItem={project => (
+          <TerminalCard
+            key={project.slug}
+            title={`${project.emoji ?? ''} ${project.title}`}
+            summary={project.summary ?? undefined}
+            tags={project.tags}
+            footer={project.footer ?? undefined}
+            href={project.href ?? `/projects/${project.slug}`}
+            external={project.external}
+            color={
+              project.color === 'green' ||
+              project.color === 'pink' ||
+              project.color === 'cyan' ||
+              project.color === 'yellow'
+                ? (project.color as 'green' | 'pink' | 'cyan' | 'yellow')
+                : undefined
+            }
+          />
+        )}
+      />
     </section>
   )
 }
