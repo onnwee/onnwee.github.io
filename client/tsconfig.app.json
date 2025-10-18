@@ -27,7 +27,10 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* TS 7 migration: silence baseUrl deprecation for TS <= 6.x */
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src"],
   "exclude": ["src/blog/**/*"]
