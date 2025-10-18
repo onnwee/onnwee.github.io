@@ -47,7 +47,6 @@ export function useUrlState(
  */
 export function useUrlArrayState(
   key: string,
-  // eslint-disable-next-line no-unused-vars
 ): [string[], (newValues: string[] | ((prev: string[]) => string[])) => void] {
   const [searchParams, setSearchParams] = useSearchParams()
 
