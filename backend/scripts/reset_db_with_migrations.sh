@@ -19,7 +19,7 @@ fi
 echo "⬇️  Rolling back all migrations..."
 # Use -all flag which doesn't prompt for confirmation
 if ! migrate -path migrations -database "$DATABASE_URL" down -all; then
-    echo "⚠️  Warning: Migration rollback had issues (this is normal if no migrations exist)"
+    echo "⚠️  Warning: Migration rollback failed (expected if no migrations have been applied yet)"
 fi
 
 echo "⬆️  Applying all migrations..."
