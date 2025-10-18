@@ -1,7 +1,8 @@
 type MultiTagFilterProps = {
   tags: string[]
   selected: string[]
-  onToggle: (_tag: string) => void
+  // eslint-disable-next-line no-unused-vars
+  onToggle: (tag: string) => void
   onClear: () => void
 }
 

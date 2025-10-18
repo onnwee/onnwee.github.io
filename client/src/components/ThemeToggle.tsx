@@ -1,4 +1,4 @@
-import { FLAVOR_META } from '@/context/ThemeContext'
+import { FLAVOR_META } from '@/context/themeConstants'
 import { useTheme } from '@/hooks'
 import { RefreshCcw } from 'lucide-react'
 

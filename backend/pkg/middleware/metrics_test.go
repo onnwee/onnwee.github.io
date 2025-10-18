@@ -8,9 +8,9 @@ import (
 
 func TestMetrics(t *testing.T) {
 	// Create a test handler
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
+		_, _ = w.Write([]byte("OK"))
 	})
 
 	// Wrap it with the Metrics middleware
@@ -34,9 +34,9 @@ func TestMetrics(t *testing.T) {
 
 func TestMetricsWithError(t *testing.T) {
 	// Create a test handler that returns an error
-	testHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	testHandler := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Error"))
+		_, _ = w.Write([]byte("Error"))
 	})
 
 	// Wrap it with the Metrics middleware

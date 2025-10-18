@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { createContext, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 
 type User = {
   id: number
@@ -23,12 +16,14 @@ type AuthContextType = {
   logout: () => void
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(undefined)
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export { AuthContext }
 
 const SESSION_TOKEN_KEY = 'auth_session_token'
 const USER_KEY = 'auth_user'
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+function AuthProvider({ children }: { children: ReactNode }) {
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -58,7 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // TODO: Replace with actual API call once backend auth endpoints are ready
       // For now, simulate successful login with mock data
       // The backend endpoints mentioned in the issue are not yet available
-      
+
       // Mock validation (remove when backend is ready)
       if (!username || !password) {
         throw new Error('Username and password are required')
