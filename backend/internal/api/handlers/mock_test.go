@@ -93,3 +93,37 @@ func (m *baseMockQuerier) ListUsers(ctx context.Context, arg db.ListUsersParams)
 func (m *baseMockQuerier) PatchUser(ctx context.Context, arg db.PatchUserParams) (db.User, error) {
 	return db.User{}, nil
 }
+
+// Stub implementations for projects methods
+func (m *baseMockQuerier) ListProjects(ctx context.Context) ([]db.Project, error) {
+	return nil, nil
+}
+func (m *baseMockQuerier) GetProjectBySlug(ctx context.Context, slug string) (db.Project, error) {
+	return db.Project{}, nil
+}
+func (m *baseMockQuerier) CreateProject(ctx context.Context, arg db.CreateProjectParams) (db.Project, error) {
+	return db.Project{}, nil
+}
+func (m *baseMockQuerier) UpdateProject(ctx context.Context, arg db.UpdateProjectParams) (db.Project, error) {
+	return db.Project{}, nil
+}
+func (m *baseMockQuerier) DeleteProject(ctx context.Context, id int32) error {
+	return nil
+}
+
+// Stub implementations for posts methods
+func (m *baseMockQuerier) ListPosts(ctx context.Context, arg db.ListPostsParams) ([]db.Post, error) {
+	return nil, nil
+}
+func (m *baseMockQuerier) GetPostBySlug(ctx context.Context, slug string) (db.Post, error) {
+	return db.Post{}, nil
+}
+func (m *baseMockQuerier) CreatePost(ctx context.Context, arg db.CreatePostParams) (db.Post, error) {
+	return db.Post{}, nil
+}
+func (m *baseMockQuerier) UpdatePost(ctx context.Context, arg db.UpdatePostParams) (db.Post, error) {
+	return db.Post{}, nil
+}
+func (m *baseMockQuerier) DeletePost(ctx context.Context, id int32) error {
+	return nil
+}

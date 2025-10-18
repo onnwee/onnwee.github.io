@@ -62,13 +62,6 @@ func (m *mockProjectQuerier) DeleteProject(ctx context.Context, id int32) error 
 	return errors.New("not implemented")
 }
 
-// Stub implementations for posts methods (needed for full interface)
-func (m *mockProjectQuerier) ListPosts(ctx context.Context, arg db.ListPostsParams) ([]db.Post, error) { return nil, nil }
-func (m *mockProjectQuerier) GetPostBySlug(ctx context.Context, slug string) (db.Post, error) { return db.Post{}, nil }
-func (m *mockProjectQuerier) CreatePost(ctx context.Context, arg db.CreatePostParams) (db.Post, error) { return db.Post{}, nil }
-func (m *mockProjectQuerier) UpdatePost(ctx context.Context, arg db.UpdatePostParams) (db.Post, error) { return db.Post{}, nil }
-func (m *mockProjectQuerier) DeletePost(ctx context.Context, id int32) error { return nil }
-
 // Tests for public project routes
 
 func TestListProjects_Success(t *testing.T) {
