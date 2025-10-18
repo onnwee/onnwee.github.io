@@ -9,7 +9,7 @@ import (
 )
 
 type Server struct {
-	DB *db.Queries
+	DB db.Querier
 }
 
 func InitDB() (*db.Queries, error) {
@@ -20,6 +20,6 @@ func InitDB() (*db.Queries, error) {
 	return db.New(conn), nil
 }
 
-func NewServer(queries *db.Queries) *Server {
+func NewServer(queries db.Querier) *Server {
 	return &Server{DB: queries}
 }
