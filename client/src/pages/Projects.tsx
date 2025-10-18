@@ -1,4 +1,4 @@
-import { TerminalCard, LazyGrid, MultiTagFilter } from '@/components'
+import { TerminalCard, LazyGrid, MultiTagFilter, SkeletonCard } from '@/components'
 import { useResponsiveItemsPerPage, useUrlArrayState, useUrlState, useDebounce } from '@/hooks'
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { ProjectsApi, type ApiProject } from '@/utils/api'
@@ -147,6 +147,8 @@ const Projects = () => {
           className="gap-8"
           animateIn
           animationDelayStep={120}
+          renderSkeleton={() => <SkeletonCard />}
+          skeletonCount={6}
           renderItem={project => (
             <TerminalCard
               key={project.slug}
