@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/onnwee/onnwee.github.io/backend/internal/api"
+	"github.com/onnwee/onnwee.github.io/backend/internal/observability"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
 )
 
@@ -18,6 +20,14 @@ func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
+
+	// Initialize OpenTelemetry
+	ctx := context.Background()
+	_, err := observability.InitOpenTelemetry(ctx)
+	if err != nil {
+		log.Fatalf("Failed to initialize OpenTelemetry: %v", err)
+	}
+	log.Println("OpenTelemetry initialized successfully")
 
 	// Init DB
 	queries, err := server.InitDB()

@@ -9,8 +9,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
+	"github.com/onnwee/onnwee.github.io/backend/internal/metrics"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
 	"github.com/onnwee/onnwee.github.io/backend/internal/utils"
+	"go.opentelemetry.io/otel"
 )
 
 // RegisterPublicProjectRoutes registers read-only project routes
@@ -81,7 +83,14 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 
 	// GET /projects - List projects
 	r.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
-		projects, err := s.DB.ListProjects(r.Context())
+		tracer := otel.Tracer("projects-handler")
+		ctx, span := tracer.Start(r.Context(), "ListProjects")
+		defer span.End()
+
+		start := time.Now()
+		projects, err := s.DB.ListProjects(ctx)
+		metrics.ObserveDBQueryDuration("list_projects", time.Since(start).Seconds())
+
 		if err != nil {
 			http.Error(w, `{"error":"Failed to fetch projects"}`, http.StatusInternalServerError)
 			return
@@ -104,8 +113,16 @@ func RegisterPublicProjectRoutes(r *mux.Router, s *server.Server) {
 
 	// GET /projects/{slug} - Get project by slug
 	r.HandleFunc("/projects/{slug}", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("projects-handler")
+		ctx, span := tracer.Start(r.Context(), "GetProjectBySlug")
+		defer span.End()
+
 		slug := mux.Vars(r)["slug"]
-		project, err := s.DB.GetProjectBySlug(r.Context(), slug)
+
+		start := time.Now()
+		project, err := s.DB.GetProjectBySlug(ctx, slug)
+		metrics.ObserveDBQueryDuration("get_project_by_slug", time.Since(start).Seconds())
+
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Project not found"}`, http.StatusNotFound)
 			return
@@ -204,6 +221,10 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 	}
 	// POST /admin/projects - Create a project
 	r.HandleFunc("/projects", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("projects-handler")
+		ctx, span := tracer.Start(r.Context(), "CreateProject")
+		defer span.End()
+
 		var body projectPayload
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			http.Error(w, `{"error":"Invalid JSON"}`, http.StatusBadRequest)
@@ -239,7 +260,10 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 			UserID:      sql.NullInt32{},
 		}
 
-		project, err := s.DB.CreateProject(r.Context(), params)
+		start := time.Now()
+		project, err := s.DB.CreateProject(ctx, params)
+		metrics.ObserveDBQueryDuration("create_project", time.Since(start).Seconds())
+
 		if err != nil {
 			http.Error(w, `{"error":"Failed to create project"}`, http.StatusInternalServerError)
 			return
@@ -252,6 +276,10 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 
 	// PUT /admin/projects/{id} - Update a project
 	r.HandleFunc("/projects/{id}", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("projects-handler")
+		ctx, span := tracer.Start(r.Context(), "UpdateProject")
+		defer span.End()
+
 		idStr := mux.Vars(r)["id"]
 		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
@@ -294,7 +322,10 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 			Embed:       utils.ToNullString(body.Embed),
 		}
 
-		project, err := s.DB.UpdateProject(r.Context(), params)
+		start := time.Now()
+		project, err := s.DB.UpdateProject(ctx, params)
+		metrics.ObserveDBQueryDuration("update_project", time.Since(start).Seconds())
+
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Project not found"}`, http.StatusNotFound)
 			return
@@ -309,6 +340,10 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 
 	// DELETE /admin/projects/{id} - Delete a project
 	r.HandleFunc("/projects/{id}", func(w http.ResponseWriter, r *http.Request) {
+		tracer := otel.Tracer("projects-handler")
+		ctx, span := tracer.Start(r.Context(), "DeleteProject")
+		defer span.End()
+
 		idStr := mux.Vars(r)["id"]
 		id64, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil {
@@ -317,7 +352,10 @@ func RegisterAdminProjectRoutes(r *mux.Router, s *server.Server) {
 		}
 		id := int32(id64)
 
-		err = s.DB.DeleteProject(r.Context(), id)
+		start := time.Now()
+		err = s.DB.DeleteProject(ctx, id)
+		metrics.ObserveDBQueryDuration("delete_project", time.Since(start).Seconds())
+
 		if err == sql.ErrNoRows {
 			http.Error(w, `{"error":"Project not found"}`, http.StatusNotFound)
 			return
