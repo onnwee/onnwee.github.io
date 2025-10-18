@@ -11,14 +11,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
 	"github.com/onnwee/onnwee.github.io/backend/internal/server"
 )
 
-// mockQuerier is a mock implementation of db.Querier for testing
+// mockProjectQuerier embeds baseMockQuerier and overrides project-specific methods
 type mockProjectQuerier struct {
+	baseMockQuerier
 	listProjects      func(ctx context.Context) ([]db.Project, error)
 	getProjectBySlug  func(ctx context.Context, slug string) (db.Project, error)
 	createProject     func(ctx context.Context, arg db.CreateProjectParams) (db.Project, error)
@@ -26,7 +26,7 @@ type mockProjectQuerier struct {
 	deleteProject     func(ctx context.Context, id int32) error
 }
 
-// Implement db.Querier interface (only methods we use in projects handlers)
+// Override only the methods we need for projects handlers
 func (m *mockProjectQuerier) ListProjects(ctx context.Context) ([]db.Project, error) {
 	if m.listProjects != nil {
 		return m.listProjects(ctx)
@@ -62,42 +62,12 @@ func (m *mockProjectQuerier) DeleteProject(ctx context.Context, id int32) error 
 	return errors.New("not implemented")
 }
 
-// Stub implementations for other Querier methods (not used in projects handlers)
-func (m *mockProjectQuerier) CountEvents(ctx context.Context) (int64, error) { return 0, nil }
-func (m *mockProjectQuerier) CountViewsByPath(ctx context.Context, path string) (int64, error) { return 0, nil }
-func (m *mockProjectQuerier) CreateEvent(ctx context.Context, arg db.CreateEventParams) error { return nil }
-func (m *mockProjectQuerier) CreateLog(ctx context.Context, arg db.CreateLogParams) (db.Log, error) { return db.Log{}, nil }
-func (m *mockProjectQuerier) CreatePageView(ctx context.Context, arg db.CreatePageViewParams) error { return nil }
-func (m *mockProjectQuerier) CreatePost(ctx context.Context, arg db.CreatePostParams) (db.Post, error) { return db.Post{}, nil }
-func (m *mockProjectQuerier) CreateSession(ctx context.Context, arg db.CreateSessionParams) (db.Session, error) { return db.Session{}, nil }
-func (m *mockProjectQuerier) CreateUser(ctx context.Context, arg db.CreateUserParams) (db.User, error) { return db.User{}, nil }
-func (m *mockProjectQuerier) CreateUserWithPassword(ctx context.Context, arg db.CreateUserWithPasswordParams) (db.User, error) { return db.User{}, nil }
-func (m *mockProjectQuerier) DeleteLog(ctx context.Context, id int32) error { return nil }
-func (m *mockProjectQuerier) DeletePost(ctx context.Context, id int32) error { return nil }
-func (m *mockProjectQuerier) DeleteSession(ctx context.Context, id uuid.UUID) error { return nil }
-func (m *mockProjectQuerier) DeleteUser(ctx context.Context, id int32) error { return nil }
-func (m *mockProjectQuerier) ExpireSession(ctx context.Context, id uuid.UUID) error { return nil }
-func (m *mockProjectQuerier) GetEventsByName(ctx context.Context, arg db.GetEventsByNameParams) ([]db.Event, error) { return nil, nil }
-func (m *mockProjectQuerier) GetEventsCountByNameLastNDays(ctx context.Context, dollar_1 sql.NullString) ([]db.GetEventsCountByNameLastNDaysRow, error) { return nil, nil }
-func (m *mockProjectQuerier) GetLogByID(ctx context.Context, id int32) (db.Log, error) { return db.Log{}, nil }
-func (m *mockProjectQuerier) GetPostBySlug(ctx context.Context, slug string) (db.Post, error) { return db.Post{}, nil }
-func (m *mockProjectQuerier) GetSessionByID(ctx context.Context, id uuid.UUID) (db.Session, error) { return db.Session{}, nil }
-func (m *mockProjectQuerier) GetTotalEventsLastNDays(ctx context.Context, dollar_1 sql.NullString) (int64, error) { return 0, nil }
-func (m *mockProjectQuerier) GetTotalViewsLastNDays(ctx context.Context, dollar_1 sql.NullString) (int64, error) { return 0, nil }
-func (m *mockProjectQuerier) GetUserByEmail(ctx context.Context, email string) (db.User, error) { return db.User{}, nil }
-func (m *mockProjectQuerier) GetUserByID(ctx context.Context, id int32) (db.User, error) { return db.User{}, nil }
-func (m *mockProjectQuerier) GetUserByUsername(ctx context.Context, username string) (db.User, error) { return db.User{}, nil }
-func (m *mockProjectQuerier) GetUserForAuth(ctx context.Context, username string) (db.User, error) { return db.User{}, nil }
-func (m *mockProjectQuerier) GetValidSession(ctx context.Context, id uuid.UUID) (db.Session, error) { return db.Session{}, nil }
-func (m *mockProjectQuerier) GetViewsByPath(ctx context.Context, arg db.GetViewsByPathParams) ([]db.PageView, error) { return nil, nil }
-func (m *mockProjectQuerier) GetViewsCountByPathLastNDays(ctx context.Context, dollar_1 sql.NullString) ([]db.GetViewsCountByPathLastNDaysRow, error) { return nil, nil }
-func (m *mockProjectQuerier) ListEvents(ctx context.Context, arg db.ListEventsParams) ([]db.Event, error) { return nil, nil }
-func (m *mockProjectQuerier) ListLogs(ctx context.Context, arg db.ListLogsParams) ([]db.Log, error) { return nil, nil }
+// Stub implementations for posts methods (needed for full interface)
 func (m *mockProjectQuerier) ListPosts(ctx context.Context, arg db.ListPostsParams) ([]db.Post, error) { return nil, nil }
-func (m *mockProjectQuerier) ListSessionsByUser(ctx context.Context, userID sql.NullInt32) ([]db.Session, error) { return nil, nil }
-func (m *mockProjectQuerier) ListUsers(ctx context.Context, arg db.ListUsersParams) ([]db.User, error) { return nil, nil }
-func (m *mockProjectQuerier) PatchUser(ctx context.Context, arg db.PatchUserParams) (db.User, error) { return db.User{}, nil }
+func (m *mockProjectQuerier) GetPostBySlug(ctx context.Context, slug string) (db.Post, error) { return db.Post{}, nil }
+func (m *mockProjectQuerier) CreatePost(ctx context.Context, arg db.CreatePostParams) (db.Post, error) { return db.Post{}, nil }
 func (m *mockProjectQuerier) UpdatePost(ctx context.Context, arg db.UpdatePostParams) (db.Post, error) { return db.Post{}, nil }
+func (m *mockProjectQuerier) DeletePost(ctx context.Context, id int32) error { return nil }
 
 // Tests for public project routes
 
