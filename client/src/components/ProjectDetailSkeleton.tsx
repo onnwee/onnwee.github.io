@@ -13,7 +13,7 @@ const ProjectDetailSkeleton = () => {
             background:
               'radial-gradient(circle at 12% 18%, rgba(var(--color-accent), 0.28), transparent 60%), radial-gradient(circle at 82% 6%, rgba(var(--color-highlight), 0.22), transparent 55%)',
           }}
-          aria-hidden
+          aria-hidden={true}
         />
 
         <div className="relative z-10 flex flex-col gap-6">
