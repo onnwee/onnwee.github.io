@@ -8,8 +8,10 @@ import (
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
 )
 
+// Compile-time assertion: *db.Queries implements db.Querier
+var _ db.Querier = (*db.Queries)(nil)
 type Server struct {
-	DB *db.Queries
+	DB db.Querier
 }
 
 func InitDB() (*db.Queries, error) {
@@ -20,6 +22,12 @@ func InitDB() (*db.Queries, error) {
 	return db.New(conn), nil
 }
 
+// NewServer preserves backward compatibility for consumers using *db.Queries.
 func NewServer(queries *db.Queries) *Server {
-	return &Server{DB: queries}
+	return NewServerWithQuerier(queries)
+}
+
+// NewServerWithQuerier is the new constructor accepting any db.Querier.
+func NewServerWithQuerier(q db.Querier) *Server {
+	return &Server{DB: q}
 }
