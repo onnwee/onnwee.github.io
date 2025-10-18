@@ -10,7 +10,6 @@ import { useSearchParams } from 'react-router-dom'
 export function useUrlState(
   key: string,
   defaultValue: string,
-  // eslint-disable-next-line no-unused-vars
 ): [string, (value: string) => void] {
   const [searchParams, setSearchParams] = useSearchParams()
 
