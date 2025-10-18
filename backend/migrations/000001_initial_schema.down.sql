@@ -10,4 +10,4 @@ DROP TABLE IF EXISTS projects CASCADE;
 DROP TABLE IF EXISTS posts CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
--- Note: We don't drop the pgcrypto extension as other databases/schemas might depend on it
+-- Note: pgcrypto extension is not dropped as it may be used by other schemas/applications and dropping extensions requires superuser privileges.
