@@ -20,6 +20,12 @@ func InitDB() (*db.Queries, error) {
 	return db.New(conn), nil
 }
 
-func NewServer(queries db.Querier) *Server {
-	return &Server{DB: queries}
+// NewServer preserves backward compatibility for consumers using *db.Queries.
+func NewServer(queries *db.Queries) *Server {
+	return NewServerWithQuerier(queries)
+}
+
+// NewServerWithQuerier is the new constructor accepting any db.Querier.
+func NewServerWithQuerier(q db.Querier) *Server {
+	return &Server{DB: q}
 }
