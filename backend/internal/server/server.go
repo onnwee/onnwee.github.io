@@ -8,6 +8,8 @@ import (
 	"github.com/onnwee/onnwee.github.io/backend/internal/db"
 )
 
+// Compile-time assertion: *db.Queries implements db.Querier
+var _ db.Querier = (*db.Queries)(nil)
 type Server struct {
 	DB db.Querier
 }
