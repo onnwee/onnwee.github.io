@@ -24,7 +24,7 @@ if ! migrate -path "$MIGRATION_PATH" -database "$DATABASE_URL" up; then
   echo "  - Database is not accessible or down"
   echo "  - Migration files are corrupted or contain SQL errors"
   echo "  - Insufficient database permissions"
-  echo "  - Migration version conflict (try 'migrate -path $MIGRATION_PATH -database \$DATABASE_URL version' to check current version)"
+  echo "  - Migration version conflict (try 'migrate -path \$MIGRATION_PATH -database \$DATABASE_URL version' to check current version)"
   exit 1
 fi
 
