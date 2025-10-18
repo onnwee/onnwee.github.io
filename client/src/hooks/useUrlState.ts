@@ -1,5 +1,11 @@
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, type Dispatch, type SetStateAction } from 'react'
 import { useSearchParams } from 'react-router-dom'
+
+// Narrow SetStateAction<T> to updater function when applicable
+// eslint-disable-next-line no-unused-vars
+function isUpdater<T>(val: unknown): val is (_prev: T) => T {
+  return typeof val === 'function'
+}
 
 /**
  * Hook to manage state synchronized with URL query parameters
@@ -10,7 +16,7 @@ import { useSearchParams } from 'react-router-dom'
 export function useUrlState(
   key: string,
   defaultValue: string,
-): [string, (value: string) => void] {
+): [string, Dispatch<SetStateAction<string>>] {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const currentValue = useMemo(
@@ -19,21 +25,24 @@ export function useUrlState(
   )
 
   const setValue = useCallback(
-    (newValue: string) => {
+    (newValue: SetStateAction<string>) => {
       setSearchParams(
-        () => {
-          const next = new URLSearchParams(searchParams)
-          if (newValue === defaultValue || !newValue) {
+        prev => {
+          const current = prev.get(key) ?? defaultValue
+          const resolved = isUpdater<string>(newValue) ? newValue(current) : newValue
+
+          const next = new URLSearchParams(prev)
+          if (resolved === defaultValue || !resolved) {
             next.delete(key)
           } else {
-            next.set(key, newValue)
+            next.set(key, resolved)
           }
           return next
         },
         { replace: true },
       )
     },
-    [setSearchParams, key, defaultValue, searchParams],
+    [setSearchParams, key, defaultValue],
   )
 
   return [currentValue, setValue]
@@ -44,9 +53,7 @@ export function useUrlState(
  * @param key - The URL parameter key
  * @returns [values, setValues] tuple for array management
  */
-export function useUrlArrayState(
-  key: string,
-): [string[], (newValues: string[] | ((prev: string[]) => string[])) => void] {
+export function useUrlArrayState(key: string): [string[], Dispatch<SetStateAction<string[]>>] {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const currentValues = useMemo(() => {
@@ -55,14 +62,15 @@ export function useUrlArrayState(
   }, [searchParams, key])
 
   const setValues = useCallback(
-    (newValues: string[] | ((prev: string[]) => string[])) => {
+    (newValues: SetStateAction<string[]>) => {
       setSearchParams(
-        () => {
-          const currentValues = searchParams.get(key)?.split(',').filter(Boolean) || []
-          const resolvedValues =
-            typeof newValues === 'function' ? newValues(currentValues) : newValues
+        prev => {
+          const currentValues = prev.get(key)?.split(',').filter(Boolean) || []
+          const resolvedValues = isUpdater<string[]>(newValues)
+            ? newValues(currentValues)
+            : newValues
 
-          const next = new URLSearchParams(searchParams)
+          const next = new URLSearchParams(prev)
           if (resolvedValues.length === 0) {
             next.delete(key)
           } else {
@@ -73,7 +81,7 @@ export function useUrlArrayState(
         { replace: true },
       )
     },
-    [setSearchParams, key, searchParams],
+    [setSearchParams, key],
   )
 
   return [currentValues, setValues]

@@ -1,7 +1,11 @@
 #!/bin/bash
 set -e
 
-echo "🔄 Resetting database..."
+echo "⚠️  WARNING: This script uses hardcoded SQL and is deprecated."
+echo "⚠️  Please use 'make migrate-down' and 'make migrate-up' instead."
+echo "⚠️  Or use scripts/reset_db_with_migrations.sh for a quick reset."
+echo ""
+echo "🔄 Resetting database (legacy method)..."
 
 docker exec -i backend-db-1 psql -U postgres -d onnwee_db <<EOSQL
 -- Drop all tables explicitly

@@ -26,6 +26,10 @@ services:
             - default
         environment:
             - DATABASE_URL=postgres://postgres:postgres@db:5432/onnwee_db?sslmode=disable
+            - DB_HOST=db
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_DB=onnwee_db
             - PORT=8000
             - SEED_NUM_USERS=500
             - SEED_NUM_POSTS=500
