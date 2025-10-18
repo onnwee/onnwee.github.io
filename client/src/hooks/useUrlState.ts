@@ -57,7 +57,6 @@ export function useUrlArrayState(
   }, [searchParams, key])
 
   const setValues = useCallback(
-    // eslint-disable-next-line no-unused-vars
     (newValues: string[] | ((prev: string[]) => string[])) => {
       setSearchParams(
         () => {
