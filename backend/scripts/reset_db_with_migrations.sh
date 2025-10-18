@@ -23,6 +23,15 @@ if ! migrate -path migrations -database "$DATABASE_URL" down -all; then
 fi
 
 echo "⬆️  Applying all migrations..."
-migrate -path migrations -database "$DATABASE_URL" up
+if ! migrate -path migrations -database "$DATABASE_URL" up; then
+  echo "❌ ERROR: Migration failed!"
+  echo "Possible causes:"
+  echo "  - Invalid DATABASE_URL format or connection details"
+  echo "  - Database is not accessible or down"
+  echo "  - Migration files are corrupted or contain SQL errors"
+  echo "  - Insufficient database permissions"
+  echo "  - Migration version conflict (try 'migrate -path migrations -database \$DATABASE_URL version' to check current version)"
+  exit 1
+fi
 
 echo "✅ Database reset complete using migrations!"
