@@ -1,4 +1,4 @@
-import { ErrorBoundary } from '@/components'
+import { ErrorBoundary, ProjectDetailSkeleton } from '@/components'
 import { errorMonitor, renderEmbed } from '@/utils'
 import { useEffect, useState } from 'react'
 import { NavLink, useParams } from 'react-router-dom'
@@ -242,11 +242,7 @@ const ProjectDetail = () => {
 
   // Handle error states
   if (loading) {
-    return (
-      <section className="section">
-        <div className="surface-card px-8 py-10 text-center text-text-muted">Loading project…</div>
-      </section>
-    )
+    return <ProjectDetailSkeleton />
   }
 
   if (error || !project) {
